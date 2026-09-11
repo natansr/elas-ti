@@ -112,8 +112,9 @@ python main.py --dry-run --pdf-root caminho --output-dir caminho
 Saída 0 indica execução concluída; 1 indica problemas de validação; 2 indica
 falha operacional/configuração/API. Na ausência de PDFs, a auditoria informa
 zero documentos. A execução completa gera saídas vazias explicitamente, sem
-inventar resultados. Avisos de validação bloqueiam a análise completa até a
-revisão dos PDFs. O dry-run só atualiza a auditoria; resultados de uma execução
+inventar resultados. Problemas estruturais de validação bloqueiam a análise
+completa até a revisão dos PDFs. Homônimos com sequências distintas permanecem
+na análise, com aviso e encaminhamento para revisão; não são fundidos. O dry-run só atualiza a auditoria; resultados de uma execução
 anterior, se existirem, continuam correspondendo ao snapshot anterior.
 
 `config.py` permite aliases de cursos, cursos de interesse, limiares de confiança,

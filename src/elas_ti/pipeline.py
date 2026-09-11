@@ -124,7 +124,7 @@ def run(args, settings):
     warnings = any(d.status != "OK" for d in documents)
     if args.dry_run or args.validate:
         return 1 if warnings else 0
-    if warnings:
+    if any(d.blocking for d in documents):
         print(
             "Análise interrompida: revise validacao_pdfs.txt antes de consultar a API ou agregar os registros."
         )

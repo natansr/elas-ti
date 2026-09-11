@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+HOMONYM_WARNING = "Possíveis homônimos com sequências distintas; revisão necessária."
+
 
 @dataclass
 class StudentRecord:
@@ -48,3 +50,7 @@ class DocumentResult:
     @property
     def status(self) -> str:
         return "WARNING" if self.warnings or self.needs_ocr else "OK"
+
+    @property
+    def blocking(self) -> bool:
+        return self.needs_ocr or any(w != HOMONYM_WARNING for w in self.warnings)

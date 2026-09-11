@@ -4,7 +4,7 @@ import re
 import unicodedata
 from collections import defaultdict
 
-from .models import DocumentResult, StudentRecord
+from .models import HOMONYM_WARNING, DocumentResult, StudentRecord
 from .name_normalizer import name_key, normalize_name
 
 PERIOD = re.compile(r"ANO/SEMESTRE\s*:\s*(\d{4})\s*/\s*([12])(?!\d)", re.I)
@@ -33,6 +33,11 @@ def parse_pages(
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         for i, line in enumerate(lines):
             found = (GRAD_PERIOD if kind == "concluinte" else PERIOD).search(line)
+            if "ANO/SEMESTRE" in line.upper() and not found:
+                course = period = None
+                result.warnings.append(
+                    f"Página {page_number}: período inválido; contexto descartado."
+                )
             if found:
                 period = (int(found[1]), int(found[2]))
                 candidate = lines[i - 1] if i else ""
@@ -133,14 +138,21 @@ def parse_pages(
             )
         unique.setdefault(identity, r)
     result.records = list(unique.values())
+    sequences = defaultdict(set)
+    for r in result.records:
+        sequences[(r.curso_normalizado, r.periodo, r.numero_sequencial)].add(
+            r.nome_chave
+        )
+    if any(len(names) > 1 for names in sequences.values()):
+        result.warnings.append(
+            "Mesma sequência com nomes divergentes; revisar documento."
+        )
     names = defaultdict(list)
     for r in result.records:
         names[(r.curso_normalizado, r.periodo, r.nome_chave)].append(r)
     for group in names.values():
         if len(group) > 1:
-            result.warnings.append(
-                "Possíveis homônimos com sequências distintas; revisão necessária."
-            )
+            result.warnings.append(HOMONYM_WARNING)
             for r in group:
                 result.review.append(
                     {

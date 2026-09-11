@@ -111,3 +111,24 @@ def test_invalid_period_and_split_sequence_are_flagged():
         parse_ingressantes([ENTRANTS + "3\nMARIA DEMONSTRACAO LIMA"]).status
         == "WARNING"
     )
+
+
+def test_invalid_new_header_does_not_reuse_old_period():
+    result = parse_ingressantes([ENTRANTS, ENTRANTS.replace("2019 / 1", "2020 / 3")])
+    assert result.registros_brutos == 2
+    assert result.blocking
+
+
+def test_conflicting_sequence_requires_review():
+    result = parse_ingressantes([ENTRANTS.replace("2 JOAO", "1 JOAO")])
+    assert result.registros_unicos == 2
+    assert result.blocking
+
+
+def test_homonyms_are_advisory_without_merging():
+    result = parse_ingressantes(
+        [ENTRANTS.replace("JOAO EXEMPLO SOUZA", "ANA TESTE SILVA")]
+    )
+    assert result.registros_unicos == 2
+    assert result.status == "WARNING"
+    assert not result.blocking
