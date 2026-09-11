@@ -1,4 +1,5 @@
 """Configurações científicas e operacionais do ELAS-TI."""
+
 PROJECT_NAME = "ELAS-TI"
 COUNTRY_ID = "BR"
 GENDERIZE_NAME_MODE = "full"

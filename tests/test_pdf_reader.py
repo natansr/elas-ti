@@ -1,7 +1,7 @@
 import pymupdf
+from test_parsers import ENTRANTS
 
 from elas_ti.pdf_reader import read_pdf
-from test_parsers import ENTRANTS
 
 
 def test_searchable_pdf(tmp_path):
@@ -33,7 +33,18 @@ def test_image_only_pdf(tmp_path):
 
 def test_dry_run(tmp_path, capsys):
     from main import main
-    assert main(["--dry-run", "--pdf-root", str(tmp_path),
-                 "--output-dir", str(tmp_path / "output")]) == 0
+
+    assert (
+        main(
+            [
+                "--dry-run",
+                "--pdf-root",
+                str(tmp_path),
+                "--output-dir",
+                str(tmp_path / "output"),
+            ]
+        )
+        == 0
+    )
     assert "Nenhum PDF" in capsys.readouterr().out
     assert (tmp_path / "output/reports/validacao_pdfs.txt").exists()

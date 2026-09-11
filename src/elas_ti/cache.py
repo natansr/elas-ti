@@ -1,4 +1,5 @@
 """Cache local de respostas; não é um cadastro de identidades."""
+
 import json
 import sqlite3
 from pathlib import Path
@@ -8,9 +9,9 @@ class GenderCache:
     def __init__(self, path: Path):
         path.parent.mkdir(parents=True, exist_ok=True)
         self.connection = sqlite3.connect(path)
-        self.connection.execute('''CREATE TABLE IF NOT EXISTS predictions (
+        self.connection.execute("""CREATE TABLE IF NOT EXISTS predictions (
             name TEXT NOT NULL, country TEXT NOT NULL, mode TEXT NOT NULL,
-            response TEXT NOT NULL, PRIMARY KEY (name, country, mode))''')
+            response TEXT NOT NULL, PRIMARY KEY (name, country, mode))""")
         self.connection.commit()
 
     def get(self, name: str, country: str, mode: str) -> dict | None:

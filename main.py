@@ -1,29 +1,64 @@
 """Entrada CLI; execute a partir da raiz do projeto."""
+
 import argparse
 import logging
+import sqlite3
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 import config
-from elas_ti.pdf_reader import discover_pdfs, read_pdf
-from elas_ti.reports import audit_documents
+from elas_ti.genderize_client import GenderizeError
+from elas_ti.pipeline import run
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="ELAS-TI")
-    parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--validate", action="store_true")
-    parser.add_argument("--verbose", action="store_true")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument(
+        "--dry-run", action="store_true", help="Extrair e auditar sem API"
+    )
+    modes.add_argument("--validate", action="store_true", help="Validar PDFs sem API")
+    modes.add_argument(
+        "--rebuild-reports",
+        action="store_true",
+        help="Reconstruir do snapshot local sem PDFs/API",
+    )
+    modes.add_argument(
+        "--match-cohorts",
+        action="store_true",
+        help="Analisar coortes usando apenas cache",
+    )
+    parser.add_argument(
+        "--no-api", action="store_true", help="Usar apenas predições em cache"
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Log operacional, sem nomes/chaves"
+    )
     parser.add_argument("--pdf-root", type=Path, default=Path("pdfs"))
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
     args = parser.parse_args(argv)
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
-    documents = [read_pdf(p, config.COURSE_ALIASES) for p in discover_pdfs(args.pdf_root)]
-    print(audit_documents(documents, args.output_dir))
-    if not documents:
-        print("Nenhum PDF disponível; não há resultados científicos a estimar.")
-    return 1 if any(d.status != "OK" for d in documents) else 0
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger("elas_ti").setLevel(
+        logging.DEBUG if args.verbose else logging.INFO
+    )
+    try:
+        return run(args, config)
+    except GenderizeError as error:
+        print(str(error), file=sys.stderr)
+        return 2
+    except ValueError:
+        print(
+            "Dados ou configuração inválidos; verifique o snapshot, cache e config.py.",
+            file=sys.stderr,
+        )
+        return 2
+    except (OSError, sqlite3.Error):
+        print(
+            "Falha de leitura/gravação local; verifique caminhos e permissões.",
+            file=sys.stderr,
+        )
+        return 2
 
 
 if __name__ == "__main__":
