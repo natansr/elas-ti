@@ -12,7 +12,7 @@ GRAD_PERIOD = re.compile(
     r"CONCLUINTES\s+NO\s+ANO/SEMESTRE\s*:\s*(\d{4})\s*/\s*([12])(?!\d)", re.I
 )
 SHIFT = r"(?:NOTURNO|MATUTINO|VESPERTINO|INTEGRAL|DIURNO)"
-ENTRY = r"(?:Vestibular|SISU|ENEM|Transferência(?:\s+(?:Interna|Externa))?|Portador de Diploma|Reingresso|Reingresso Especial|Processo Seletivo)"
+ENTRY = r"(?:Vestibular|SISU|ENEM|SAS|Graduado|Transferência(?:\s+(?:Interna|Externa))?|Portador de Diploma|Reingresso|Reingresso Especial|Processo Seletivo)"
 
 
 def parse_pages(

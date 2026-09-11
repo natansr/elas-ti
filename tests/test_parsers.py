@@ -132,3 +132,19 @@ def test_homonyms_are_advisory_without_merging():
     assert result.registros_unicos == 2
     assert result.status == "WARNING"
     assert not result.blocking
+
+
+@pytest.mark.parametrize("entry", ["SAS", "Graduado"])
+def test_institutional_entry_modes_with_synthetic_names(entry):
+    page = ENTRANTS.replace("Vestibular VESTIBULAR", f"{entry} {entry.upper()}")
+    result = parse_ingressantes([page, page])
+    assert result.status == "OK"
+    assert result.registros_brutos == 4
+    assert result.registros_unicos == 2
+    assert result.duplicacoes_removidas == 2
+    assert [r.nome_original for r in result.records] == [
+        "ANA TESTE SILVA",
+        "JOAO EXEMPLO SOUZA",
+    ]
+    assert all(r.tipo_ingresso == entry for r in result.records)
+    assert all(r.turno == "NOTURNO" for r in result.records)

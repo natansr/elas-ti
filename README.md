@@ -217,8 +217,12 @@ e as cópias de segurança com os controles institucionais de acesso.
 
 Os parsers suportam nomes em maiúsculas e linhas tabulares com campos na mesma
 linha de texto extraída. Layouts com quebras de linha/células não reconhecidas
-são sinalizados para adaptação. Não houve validação dos PDFs institucionais
-originais no desenvolvimento inicial: eles não estavam no diretório local.
+são sinalizados para adaptação. Os quatro PDFs institucionais foram validados localmente: 44 ingressantes em
+2019/1, 30 em 2020/1, 3 concluintes em 2025/2 e 2 em 2026/1, todos de Sistemas
+de Informação. Os relatórios de ingresso repetem a listagem: 88 linhas em 2019
+e 60 em 2020 foram reduzidas a 44 e 30 registros únicos. As modalidades SAS e
+Graduado são reconhecidas, além das demais modalidades suportadas. Os PDFs e
+os nomes reais permanecem fora do Git; os testes de regressão usam nomes sintéticos.
 
 ```sh
 pytest                 # Suíte normal e integração, quando houver PDFs
