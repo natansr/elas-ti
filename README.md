@@ -57,6 +57,16 @@ Somente nomes ausentes do cache são consultados. Falhas de extração bloqueiam
 
 Configurações de cursos, inferência e acompanhamento ficam em `config.py`. Veja todas as opções com `python main.py --help`.
 
+## Escolher gráficos no terminal
+
+```sh
+python main.py --graphs
+```
+
+O menu permite escolher **contagens, participação feminina, comparação ingresso × conclusão, cobertura, correspondência por coorte ou tempo até conclusão**. Selecione curso e período, linhas ou barras (coortes usam barras), e salve em **PNG, PDF ou SVG**. Você também pode abrir uma janela local do Matplotlib; nenhum navegador é necessário.
+
+O menu lê a última análise salva, informa a data dos dados e não consulta a API. Para preparar ou atualizar as contagens, execute `python main.py --no-api`. Gráficos de participação feminina precisam de inferências salvas. Os filtros de coorte usam o período de **ingresso**, mantendo as conclusões posteriores no acompanhamento. As figuras ficam em `output/figures/`, com nomes únicos e notas sobre as métricas e seus intervalos.
+
 ## Estatísticas calculadas
 
 Ingressantes e concluintes são analisados **separadamente**, nos níveis global, curso, ano, semestre, curso + ano e curso + semestre.

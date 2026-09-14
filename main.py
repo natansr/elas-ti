@@ -16,6 +16,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="ELAS-TI")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument(
+        "--graphs", action="store_true", help="Menu local de gráficos Matplotlib"
+    )
+    modes.add_argument(
         "--dry-run", action="store_true", help="Extrair e auditar sem API"
     )
     modes.add_argument("--validate", action="store_true", help="Validar PDFs sem API")
@@ -43,6 +46,10 @@ def main(argv=None):
         logging.DEBUG if args.verbose else logging.INFO
     )
     try:
+        if args.graphs:
+            from elas_ti.plot_menu import run_menu
+
+            return run_menu(args.output_dir)
         return run(args, config)
     except GenderizeError as error:
         print(str(error), file=sys.stderr)
