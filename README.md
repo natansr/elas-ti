@@ -1,239 +1,117 @@
 # ELAS-TI
 
-Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação
+**Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação**
 
-Universidade Estadual de Goiás — Unidade Universitária de Goianésia.
+Projeto de pesquisa da **Universidade Estadual de Goiás — Unidade Universitária de Goianésia**. Analisa relatórios institucionais em PDF para estimar a participação feminina e acompanhar correspondências entre listas de ingresso e conclusão.
 
-O projeto processa relatórios institucionais locais de ingresso e conclusão,
-produz auditoria da extração e estima a participação feminina por inferência
-probabilística a partir dos nomes. Também acompanha correspondências entre
-listas de ingresso e conclusão posteriores, no mesmo curso.
+Extrai e valida registros, remove repetições e gera tabelas e gráficos por curso e período. Usa o Genderize.io: **gênero inferido pelo nome não representa gênero autodeclarado**.
 
 ## Instalação
 
-Python 3.11 ou superior:
+Requer **Python 3.11 ou superior**. Na pasta do projeto:
 
 ```sh
 python -m venv .venv
 ```
 
-Linux/macOS:
-
-```sh
-source .venv/bin/activate
-```
-
-Windows:
-
-```bat
-.venv\Scripts\activate
-```
+Ative o ambiente com `source .venv/bin/activate` no Linux/macOS ou `.venv\Scripts\activate` no Windows. Depois:
 
 ```sh
 pip install -r requirements.txt
 ```
 
-Crie localmente `.env` a partir de `.env.example`:
+Para usar o Genderize, copie `.env.example` para `.env` e preencha `GENDERIZE_API_KEY` com sua chave. Sem chave, use `--no-api` para trabalhar apenas com o cache local.
 
-```dotenv
-GENDERIZE_API_KEY=sua_chave
+## Como usar
+
+**1. Coloque os PDFs nas pastas correspondentes:**
+
+```text
+pdfs/
+├── ingressantes/
+└── formandos/
 ```
 
-Não publique esse arquivo. Coloque os PDFs em `pdfs/ingressantes/` e
-`pdfs/formandos/`. O conteúdo, e não o nome do arquivo, determina o tipo,
-curso e período. Comece sempre pela auditoria:
+**2. Valide a extração antes de analisar:**
 
 ```sh
 python main.py --dry-run
-pytest
 ```
 
-## Extração e validação
+Confira `output/reports/validacao_pdfs.txt`. O dry-run não consulta a API. PDFs sem texto ou com layout não reconhecido exigem revisão; não há OCR automático.
 
-O parser suporta os cabeçalhos e as linhas tabulares dos relatórios descritos
-no estudo. Usa PyMuPDF, sem OCR automático. Páginas sem texto, linhas sem
-fronteiras reconhecidas, totais divergentes e homônimos geram avisos.
-Layout diferente exige inspeção e adaptação; nunca se completam registros
-por suposição. O motivo de entrada fica vazio quando não há delimitação segura;
-as cotas não são extraídas.
-
-Repetições internas são removidas pela combinação de tipo, documento, curso,
-período, sequência e chave do nome. Sequências distintas com o mesmo nome
-permanecem como registros distintos e são encaminhadas à revisão.
-
-Os testes usam exclusivamente nomes sintéticos. Testes marcados `integration`
-verificam os totais locais conhecidos (44, 30, 3 e 2), se os documentos
-correspondentes estiverem presentes. Sem PDFs eles são ignorados. Um PDF
-presente mas não validado provoca falha, evitando um sucesso enganoso.
-
-## Privacidade
-
-PDFs, `.env`, cache SQLite, CSVs e toda a pasta `output/` são ignorados pelo Git.
-Os relatórios agregados não listam nomes. CSVs detalhados e cache contêm dados
-pessoais e devem ficar em armazenamento local com acesso restrito. Não há
-upload de PDFs. Apenas nomes consultados são enviados ao Genderize quando
-se executa a modalidade com API. O dry-run não chama a API.
-
-Não há licença definida. O repositório deve permanecer privado.
-
-## Estrutura
-
-- `src/elas_ti/`: parsers, modelos, inferência, estatística, coortes e saídas.
-- `tests/`: testes sintéticos e integração local opcional.
-- `config.py`: configurações científicas e operacionais.
-- `pdfs/`: documentos institucionais locais, não versionados.
-- `cache/`: resultados persistentes locais do Genderize.
-- `output/`: CSVs, relatórios e figuras locais.
-- `.github/workflows/tests.yml`: testes sem API, chave ou PDFs privados.
-
-## Execução completa
-
-Após revisar a auditoria:
+**3. Gere as análises:**
 
 ```sh
 python main.py
-python main.py --verbose
-python main.py --validate
-python main.py --no-api
-python main.py --rebuild-reports
-python main.py --match-cohorts
-python main.py --dry-run --pdf-root caminho --output-dir caminho
 ```
 
-| Opção | Comportamento |
+Somente nomes ausentes do cache são consultados. Falhas de extração bloqueiam a análise; homônimos são preservados para revisão.
+
+| Opção | Uso |
 |---|---|
-| `--dry-run`, `--validate` | Somente extração e auditoria; não criam cache nem consultam API |
-| sem opção | Valida, consulta nomes ausentes do cache e produz todas as análises |
-| `--no-api` | Usa cache; nomes ausentes continuam não identificados |
-| `--rebuild-reports` | Recria saídas do snapshot local, com os parâmetros originais, sem PDFs ou API |
-| `--match-cohorts` | Executa análise incluindo coortes, usando somente cache |
-| `--verbose` | Habilita log do projeto, sem log HTTP de URLs ou nomes |
+| `--no-api` | Gera análises com o cache; nomes sem resposta continuam não identificados. |
+| `--rebuild-reports` | Recria as saídas a partir dos dados e parâmetros salvos localmente, sem PDFs ou API. |
+| `--match-cohorts` | Executa a análise, incluindo coortes, usando somente o cache. |
+| `--pdf-root caminho`, `--output-dir caminho` | Define as pastas de entrada e saída. |
 
-Saída 0 indica execução concluída; 1 indica problemas de validação; 2 indica
-falha operacional/configuração/API. Na ausência de PDFs, a auditoria informa
-zero documentos. A execução completa gera saídas vazias explicitamente, sem
-inventar resultados. Problemas estruturais de validação bloqueiam a análise
-completa até a revisão dos PDFs. Homônimos com sequências distintas permanecem
-na análise, com aviso e encaminhamento para revisão; não são fundidos. O dry-run só atualiza a auditoria; resultados de uma execução
-anterior, se existirem, continuam correspondendo ao snapshot anterior.
+Configurações de cursos, inferência e acompanhamento ficam em `config.py`. Veja todas as opções com `python main.py --help`.
 
-`config.py` permite aliases de cursos, cursos de interesse, limiares de confiança,
-país, modo `full`/`first`, tamanho de lote e acompanhamento mínimo. Sem filtro
-mínimo nenhuma coorte é excluída. O acompanhamento usa o último período de
-conclusão disponível **do curso**, além de informar o último período global;
-sem relatório do curso fica vazio, e ingressos posteriores têm acompanhamento 0.
-O filtro de cursos é aplicado depois da auditoria de todos os documentos.
+## Estatísticas calculadas
 
-## Inferência e cache
+Ingressantes e concluintes são analisados **separadamente**, nos níveis global, curso, ano, semestre, curso + ano e curso + semestre.
 
-O cliente usa `country_id=BR` e lotes de até 100 nomes, conforme a
-[referência oficial do Genderize](https://genderize.io/documentation/api/reference).
-A chave vem de `GENDERIZE_API_KEY`, carregada do `.env` na raiz do projeto.
-Timeout, conexão, JSON inválido e HTTP 429/500/502/503 têm até quatro tentativas,
-com esperas de 1, 2 e 4 segundos. HTTP 401/402 interrompem imediatamente.
-Redirecionamentos não são seguidos e corpos de erro não são impressos.
+**N** = total de registros; **R** = registros com inferência (resolvidos); **U = N − R** = não identificados. **q** é a probabilidade feminina: `p` para resposta `female` e `1 − p` para `male`. Nulos não recebem 0,5.
 
-O cache `cache/genderize.sqlite` guarda resposta, nome consultado, país, modo e
-instante UTC. A chave utiliza o nome consultado normalizado (maiúsculas com
-acentos), país e modo. Em `first`, nomes completos com o mesmo primeiro nome
-compartilham a consulta. Uma resposta nula válida também é armazenada. Não há
-expiração automática; preserve o cache para reproduzir a análise e remova-o
-localmente apenas se desejar novas consultas, que podem consumir cota.
-O cache não é usado como identificador de pessoas.
+| Métrica | Cálculo e interpretação |
+|---|---|
+| Contagens e cobertura | N, R e U após deduplicação; cobertura = `R / N` (de 0 a 1). |
+| Número esperado de mulheres e homens | `E[F] = Σq` e `E[M] = R − E[F]`. São estimativas entre os resolvidos e podem ser fracionárias. |
+| Participação feminina e masculina estimada | `100 × E[F] / R` e `100 × E[M] / R`. **O denominador é R, não N.** Sem resolvidos, ficam sem valor. |
+| Variância e desvio padrão | `Var(F) = Σq(1 − q)` e `SD(F) = √Var(F)`: dispersão da contagem feminina sob o modelo. |
+| Intervalo probabilístico de incerteza de 95% | Quantis de 2,5% e 97,5% da Poisson-binomial exata sobre os resolvidos. Expressos em número de mulheres; assumem independência entre registros. |
+| Limites considerando não identificados | Para contagem: `[limite inferior do intervalo, limite superior + U]`; para percentual, divide-se por N e multiplica-se por 100. Os limites da **expectativa** no total são, separadamente, `[E[F]/N, (E[F]+U)/N] × 100`. |
+| Indicadores auxiliares da API | Contagens por confiança: alta ≥0,90, moderada ≥0,75 e <0,90, baixa <0,75. Média/mediana de `probability` e `count` entre resolvidos; `count` é a base de observações da API, não estudantes. |
 
-## Metodologia estatística
+**Exemplo ilustrativo:** com 40 registros, 30 resolvidos e `E[F] = 12`, a cobertura é 75% e a participação feminina estimada **entre resolvidos** é 40%. Considerando os 10 não identificados, a expectativa feminina no total fica entre 30% e 55%.
 
-Para resposta `female` com probabilidade `p`, `p_female=p`. Para `male`,
-`p_female=1-p`. Nulos permanecem desconhecidos. A classificação auxiliar usa
-alta confiança ≥0,90, moderada ≥0,75 e baixa abaixo de 0,75.
+A evolução temporal informa a variação em **pontos percentuais** entre períodos sucessivos disponíveis. A comparação no mesmo semestre calcula **percentual de concluintes − percentual de ingressantes**; isso não compara a mesma coorte. Semestres ausentes não são preenchidos.
 
-A estimativa principal usa `E[F]=Σq`, `E[M]=Σ(1-q)`,
-`Var(F)=Σq(1-q)` e `SD(F)=√Var(F)`. Os percentuais principais são calculados
-**entre os resolvidos**, com total, número não identificado e cobertura
-separados. As expectativas também se referem apenas aos resolvidos.
+O intervalo depende do modelo; **não é um intervalo de confiança amostral clássico**. A função opcional de Monte Carlo compara grupos independentes (100 mil simulações; percentis 2,5/50/97,5). Não integra a execução automática.
 
-A distribuição Poisson-binomial é calculada exatamente por programação dinâmica,
-com tempo O(n²), memória O(n), sem SciPy. Os quantis discretos de 2,5% e 97,5%
-formam o **intervalo probabilístico de incerteza de 95%**, sob independência dos
-registros e condicionado às probabilidades do modelo. Não é intervalo de
-confiança amostral clássico. Para os não identificados são fornecidos dois
-conjuntos distintos de limites:
+## Coortes e acompanhamento
 
-- Contagem: `[quantil inferior, quantil superior + não identificados]`.
-- Expectativa percentual no total: `[E[F]/N, (E[F]+não identificados)/N] × 100`.
+Uma **coorte** reúne ingressantes do mesmo curso e semestre. O vínculo exige curso e nome normalizado iguais, conclusão posterior e unicidade nos dois sentidos. Os status são `exact_unique`, `ambiguous` e `not_found`; apenas o primeiro conta como correspondência única.
 
-`monte_carlo_difference` em `elas_ti.statistics` é um recurso opcional para
-comparar grupos independentes de probabilidades resolvidas. Usa 100.000
-iterações e semente 42 por padrão e retorna percentis 2,5/50/97,5 da diferença
-B−A em pontos percentuais: **intervalo de incerteza baseado no modelo**. Não é
-executado automaticamente nas séries com possíveis pessoas compartilhadas,
-nem deve ser aplicado a coortes sobrepostas sem modelar essa dependência.
+| Métrica | Significado |
+|---|---|
+| Tamanho e composição da coorte | Total de ingressantes e números esperados de mulheres/homens entre os resolvidos, na coorte e no subconjunto reencontrado. |
+| Proporção de correspondência | Vínculos `exact_unique` divididos pelo total de ingressantes da coorte. |
+| Tempo até conclusão | Diferença em semestres nos vínculos únicos; média, mediana, mínimo e máximo, no geral e por curso. Exemplo: 2019/1 → 2020/1 = 2 semestres. |
+| Tempo de acompanhamento | Semestres entre o ingresso e a última lista de conclusão disponível do curso. Sem lista, fica vazio; se ela antecede o ingresso, vale zero. Por padrão, nenhuma coorte é excluída. |
 
-As análises são separadas por tipo de registro, nos níveis global, curso, ano,
-período, curso+ano e curso+período. A variação em pontos percentuais usa períodos
-sucessivos disponíveis, sem preencher semestres ausentes. A comparação descritiva
-no mesmo semestre não vincula ingresso e conclusão como uma coorte.
+Essa proporção mede **ingressantes reencontrados nas listas de conclusão disponíveis**, não a taxa oficial de conclusão. PDFs ausentes, mudanças de nome/curso, homônimos e coortes recentes limitam o resultado. Um vínculo por nome não confirma identidade.
 
-## Matching e limites de interpretação
+## Resultados e privacidade
 
-Matching usa mesmo curso, chave normalizada do nome e conclusão posterior.
-`exact_unique` exige unicidade nos dois sentidos: um ingressante com um candidato
-e esse candidato com apenas um ingresso possível. Vários candidatos ou reingressos
-concorrentes são `ambiguous`; sem candidatos, `not_found`. Nenhuma correspondência
-fuzzy é contada; sugestões fuzzy não fazem parte desta versão.
+| Pasta | Conteúdo |
+|---|---|
+| `output/reports/` | Relatório principal (`relatorio_elas_ti.txt`) e auditoria dos PDFs (`validacao_pdfs.txt`). |
+| `output/csv/` | Registros, resumos estatísticos, comparações, coortes e casos para revisão. |
+| `output/figures/` | Gráficos de participação feminina no ingresso, na conclusão e na comparação das séries. |
 
-O tempo é a diferença dos índices `2×ano + semestre−1`. Coortes são curso+período
-de ingresso. A medida é a **proporção de ingressantes reencontrados posteriormente
-nas listas de conclusão disponíveis**, e não taxa oficial de conclusão.
+O snapshot `output/registros_snapshot.json` permite reconstruir os relatórios. O dry-run atualiza apenas a auditoria, não análises anteriores.
 
-Gênero inferido a partir do nome não é gênero autodeclarado. Probabilidades não
-são ground truth; não se calculam accuracy, precision, recall ou F1. O modelo
-binário, vieses culturais, calibração desconhecida e dependência entre nomes
-limitam as estimativas. PDFs ausentes, homônimos, reingressos, transferências,
-mudanças de nome/curso e coortes em andamento limitam o matching. Mesmo
-`exact_unique` não constitui verificação externa de identidade.
+**PDFs, `.env`, cache e saídas ficam fora do Git.** Relatórios agregados não listam nomes; CSVs detalhados e snapshot exigem acesso restrito. Apenas os nomes consultados são enviados ao Genderize, nunca os PDFs. Repositório privado, sem licença definida.
 
-## Saídas e reprodutibilidade
+As estimativas estão sujeitas à cobertura, a vieses e à calibração do Genderize. O modelo binário não representa a diversidade de gênero.
 
-`output/csv/` contém registros classificados (com `record_id` usado no matching),
-auditoria, casos para revisão, resumos em todos os agrupamentos, comparação,
-coortes e tempo até conclusão. Os nomes de arquivo principais seguem:
+## Desenvolvimento
 
-- `registros_classificados.csv`, `documentos_processados.csv`, `casos_para_revisao.csv`;
-- `resumo_ingressantes_periodo.csv`, `resumo_concluintes_periodo.csv`;
-- `resumo_ingressantes_curso_periodo.csv`, `resumo_concluintes_curso_periodo.csv`;
-- `comparacao_ingressantes_concluintes.csv`, `cohort_matches.csv`, `resumo_coortes.csv`.
-
-`output/reports/` guarda `validacao_pdfs.txt` e `relatorio_elas_ti.txt` (dez seções).
-`output/figures/` guarda três PNGs acadêmicos, sem dados pessoais. O eixo X mantém
-as distâncias cronológicas; linhas só conectam observações disponíveis.
-
-`output/registros_snapshot.json` guarda registros, auditoria, configurações,
-hashes SHA-256 dos PDFs e data da execução. **Contém nomes e é exclusivamente
-local**. `--rebuild-reports` usa esse snapshot. Um `.gitignore` também é criado
-no diretório de saída personalizado. Não direcione saídas para a raiz do código.
-Os dados locais não são criptografados pelo programa: proteja o armazenamento
-e as cópias de segurança com os controles institucionais de acesso.
-
-Os parsers suportam nomes em maiúsculas e linhas tabulares com campos na mesma
-linha de texto extraída. Layouts com quebras de linha/células não reconhecidas
-são sinalizados para adaptação. Os quatro PDFs institucionais foram validados localmente: 44 ingressantes em
-2019/1, 30 em 2020/1, 3 concluintes em 2025/2 e 2 em 2026/1, todos de Sistemas
-de Informação. Os relatórios de ingresso repetem a listagem: 88 linhas em 2019
-e 60 em 2020 foram reduzidas a 44 e 30 registros únicos. As modalidades SAS e
-Graduado são reconhecidas, além das demais modalidades suportadas. Os PDFs e
-os nomes reais permanecem fora do Git; os testes de regressão usam nomes sintéticos.
+O código está em `src/elas_ti/`, as configurações em `config.py` e os testes em `tests/`.
 
 ```sh
-pytest                 # Suíte normal e integração, quando houver PDFs
-pytest -m integration  # Somente documentos institucionais locais
+pytest
 ```
 
-Os testes bloqueiam HTTP real automaticamente e geram PDFs sintéticos temporários.
-O GitHub Actions testa Python 3.11 e 3.13 sem secrets. As dependências têm faixas
-compatíveis em `requirements.txt`; o snapshot registra parâmetros científicos,
-mas atualizações de bibliotecas podem alterar a renderização dos gráficos.
-
-Para manutenção, instale `requirements-dev.txt` e execute
-`ruff check main.py config.py src tests` e `ruff format --check main.py config.py src tests`.
-O snapshot também registra a versão do Python e das dependências de análise.
+Os testes usam dados sintéticos e bloqueiam chamadas reais à API. As integrações com PDFs institucionais são executadas apenas quando os arquivos estão disponíveis localmente. O GitHub Actions executa a suíte sem chaves ou PDFs privados.
