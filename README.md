@@ -103,10 +103,10 @@ A suíte bloqueia chamadas reais à API. Os testes de integração com documento
 
 ## Autoria
 
-Vitória Maria Diniz Pereira e Natan de Souza Rodrigues. Projeto desenvolvido pelo grupo de pesquisa **ANDSol/UEG**.
+Vitória Maria Diniz e Natan S. Rodrigues. Projeto desenvolvido pelo grupo de pesquisa **ANDSol/UEG**.
 
 ## Licença
 
 O ELAS-TI é distribuído sob os termos da GNU General Public License, versão 3 ou posterior (`GPL-3.0-or-later`). O texto completo está em [LICENSE](LICENSE).
 
-Copyright (C) 2026 Vitória Maria Diniz Pereira e Natan de Souza Rodrigues.
+Copyright (C) 2026 Vitória Maria Diniz e Natan S. Rodrigues.
