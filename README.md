@@ -2,126 +2,95 @@
 
 **Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação**
 
-Projeto de pesquisa da **Universidade Estadual de Goiás — Unidade Universitária de Goianésia**. Analisa relatórios institucionais em PDF para estimar a participação feminina e acompanhar correspondências entre listas de ingresso e conclusão.
+Projeto de pesquisa da Universidade Estadual de Goiás — Unidade Universitária de Goianésia. Processa PDFs institucionais, valida os registros e produz estatísticas e gráficos locais com **Matplotlib**, sem interface web.
 
-Extrai e valida registros, remove repetições e gera tabelas e gráficos por curso e período. Usa o Genderize.io: **gênero inferido pelo nome não representa gênero autodeclarado**.
+**A inferência probabilística é realizada pelo [Genderize.io](https://genderize.io).** Ela estima gênero a partir do nome; não representa gênero autodeclarado. O software não inventa respostas quando a API ou o cache não têm informação.
 
 ## Instalação
 
-Requer **Python 3.11 ou superior**. Na pasta do projeto:
+Requer **Python 3.11+**. Na pasta do projeto:
 
 ```sh
 python -m venv .venv
 ```
 
-Ative o ambiente com `source .venv/bin/activate` no Linux/macOS ou `.venv\Scripts\activate` no Windows. Depois:
+Ative com `source .venv/bin/activate` no Linux/macOS ou `.venv\Scripts\activate` no Windows. Depois:
 
 ```sh
 pip install -r requirements.txt
 ```
 
-Para usar o Genderize, copie `.env.example` para `.env` e preencha `GENDERIZE_API_KEY` com sua chave. Sem chave, use `--no-api` para trabalhar apenas com o cache local.
+Para consultar a API, copie `.env.example` para `.env` e preencha `GENDERIZE_API_KEY`. A configuração padrão usa nomes completos e contexto brasileiro (`BR`). **Os nomes consultados são enviados ao Genderize.io; os PDFs nunca são enviados.** Use essa modalidade apenas com autorização para tratar e transmitir os dados.
 
-## Como usar
+## Uso em três passos
 
-**1. Coloque os PDFs nas pastas correspondentes:**
+**1. Coloque os PDFs** em `pdfs/ingressantes/` e `pdfs/formandos/`.
 
-```text
-pdfs/
-├── ingressantes/
-└── formandos/
-```
-
-**2. Valide a extração antes de analisar:**
+**2. Valide os documentos e prepare os resultados:**
 
 ```sh
-python main.py --dry-run
+python main.py --dry-run  # Extrai e confere os totais, sem API
+python main.py --no-api   # Gera análises usando apenas o cache local
 ```
 
-Confira `output/reports/validacao_pdfs.txt`. O dry-run não consulta a API. PDFs sem texto ou com layout não reconhecido exigem revisão; não há OCR automático.
+Confira `output/reports/validacao_pdfs.txt`. PDFs sem texto ou layouts não reconhecidos exigem revisão; não há OCR automático. Para obter inferências ainda ausentes, após configurar a chave, execute `python main.py`.
 
-**3. Gere as análises:**
-
-```sh
-python main.py
-```
-
-Somente nomes ausentes do cache são consultados. Falhas de extração bloqueiam a análise; homônimos são preservados para revisão.
-
-| Opção | Uso |
-|---|---|
-| `--no-api` | Gera análises com o cache; nomes sem resposta continuam não identificados. |
-| `--rebuild-reports` | Recria as saídas a partir dos dados e parâmetros salvos localmente, sem PDFs ou API. |
-| `--match-cohorts` | Executa a análise, incluindo coortes, usando somente o cache. |
-| `--pdf-root caminho`, `--output-dir caminho` | Define as pastas de entrada e saída. |
-
-Configurações de cursos, inferência e acompanhamento ficam em `config.py`. Veja todas as opções com `python main.py --help`.
-
-## Escolher gráficos no terminal
+**3. Escolha o gráfico:**
 
 ```sh
 python main.py --graphs
 ```
 
-O menu permite escolher **contagens, participação feminina, comparação ingresso × conclusão, cobertura, correspondência por coorte ou tempo até conclusão**. Selecione curso e período, linhas ou barras (coortes usam barras), e salve em **PNG, PDF ou SVG**. Você também pode abrir uma janela local do Matplotlib; nenhum navegador é necessário.
+O menu orienta a escolha de análise, curso, período e formato. Salva **PNG, PDF ou SVG** em `output/figures/` e permite abrir uma janela local do Matplotlib. Ele lê a última análise salva, mostra sua data e não faz chamadas à API.
 
-O menu lê a última análise salva, informa a data dos dados e não consulta a API. Para preparar ou atualizar as contagens, execute `python main.py --no-api`. Gráficos de participação feminina precisam de inferências salvas. Os filtros de coorte usam o período de **ingresso**, mantendo as conclusões posteriores no acompanhamento. As figuras ficam em `output/figures/`, com nomes únicos e notas sobre as métricas e seus intervalos.
+| Gráfico | O que mostra |
+|---|---|
+| Quantidade de estudantes | Registros de ingresso ou conclusão por semestre, em linhas ou barras. |
+| Participação feminina | Percentual estimado entre resolvidos, com intervalo probabilístico de 95%. |
+| Ingresso × conclusão | Duas séries distintas; não representam a mesma coorte. |
+| Cobertura | Percentual dos registros com inferência disponível. |
+| Coortes e tempo até conclusão | Correspondências por coorte e tempo médio dos vínculos únicos. |
+| **Pizza feminina × masculina** | Composição estimada entre resolvidos no período selecionado, com cobertura indicada. |
+| **Barras femininas × masculinas por ano** | Percentuais anuais, calculados sobre todos os registros resolvidos do ano. |
 
-## Estatísticas calculadas
+Pizza e barras anuais analisam ingresso **ou** conclusão separadamente. Não identificados ficam fora dos percentuais e não são contados como homens. Sem inferências suficientes, o programa explica por que não pode gerar o gráfico. A pizza não exibe a incerteza: use o gráfico de participação feminina para isso.
 
-Ingressantes e concluintes são analisados **separadamente**, nos níveis global, curso, ano, semestre, curso + ano e curso + semestre.
+## Entenda as métricas
 
-**N** = total de registros; **R** = registros com inferência (resolvidos); **U = N − R** = não identificados. **q** é a probabilidade feminina: `p` para resposta `female` e `1 − p` para `male`. Nulos não recebem 0,5.
+**N** = total; **R** = registros com inferência; **U = N − R** = não identificados. Para cada resolvido, **q** é a probabilidade feminina: `p` para resposta `female`, `1 − p` para `male`.
 
 | Métrica | Cálculo e interpretação |
 |---|---|
-| Contagens e cobertura | N, R e U após deduplicação; cobertura = `R / N` (de 0 a 1). |
-| Número esperado de mulheres e homens | `E[F] = Σq` e `E[M] = R − E[F]`. São estimativas entre os resolvidos e podem ser fracionárias. |
-| Participação feminina e masculina estimada | `100 × E[F] / R` e `100 × E[M] / R`. **O denominador é R, não N.** Sem resolvidos, ficam sem valor. |
-| Variância e desvio padrão | `Var(F) = Σq(1 − q)` e `SD(F) = √Var(F)`: dispersão da contagem feminina sob o modelo. |
-| Intervalo probabilístico de incerteza de 95% | Quantis de 2,5% e 97,5% da Poisson-binomial exata sobre os resolvidos. Expressos em número de mulheres; assumem independência entre registros. |
-| Limites considerando não identificados | Para contagem: `[limite inferior do intervalo, limite superior + U]`; para percentual, divide-se por N e multiplica-se por 100. Os limites da **expectativa** no total são, separadamente, `[E[F]/N, (E[F]+U)/N] × 100`. |
-| Indicadores auxiliares da API | Contagens por confiança: alta ≥0,90, moderada ≥0,75 e <0,90, baixa <0,75. Média/mediana de `probability` e `count` entre resolvidos; `count` é a base de observações da API, não estudantes. |
+| Cobertura | `R / N` (fração nos CSVs; percentual nos gráficos). |
+| Quantidades esperadas | Mulheres: `Σq`; homens: `R − Σq`. Podem ser fracionárias. |
+| Percentuais estimados | Quantidade esperada dividida por **R**, multiplicada por 100. |
+| Variância e desvio padrão | `Σq(1 − q)` e sua raiz quadrada, para a contagem feminina. |
+| Incerteza de 95% | Quantis 2,5% e 97,5% da Poisson-binomial exata, sob independência. Não é intervalo de confiança amostral clássico. |
+| Limites com não identificados | Contagem: `[quantil inferior, quantil superior + U]`. Expectativa percentual no total: `[Σq/N, (Σq+U)/N] × 100`. |
+| Evolução temporal | Diferença em pontos percentuais entre períodos disponíveis; sem imputar períodos ausentes. |
 
-**Exemplo ilustrativo:** com 40 registros, 30 resolvidos e `E[F] = 12`, a cobertura é 75% e a participação feminina estimada **entre resolvidos** é 40%. Considerando os 10 não identificados, a expectativa feminina no total fica entre 30% e 55%.
+**Exemplo fictício:** N=40, R=30 e quantidade feminina esperada=12 → cobertura de 75%, participação feminina de 40% entre resolvidos e expectativa feminina entre 30% e 55% no total.
 
-A evolução temporal informa a variação em **pontos percentuais** entre períodos sucessivos disponíveis. A comparação no mesmo semestre calcula **percentual de concluintes − percentual de ingressantes**; isso não compara a mesma coorte. Semestres ausentes não são preenchidos.
+Também são calculadas médias/medianas de `probability` e `count` da API e contagens de confiança alta (≥0,90), moderada (≥0,75 e <0,90) e baixa (<0,75). `count` se refere às observações da API, não a estudantes.
 
-O intervalo depende do modelo; **não é um intervalo de confiança amostral clássico**. A função opcional de Monte Carlo compara grupos independentes (100 mil simulações; percentis 2,5/50/97,5). Não integra a execução automática.
+Uma **coorte** é curso + período de ingresso. O vínculo exige nome normalizado e curso iguais, conclusão posterior e unicidade nos dois sentidos. A proporção de vínculos mede **ingressantes reencontrados nas listas disponíveis**, não taxa oficial de conclusão. O tempo é medido em semestres. Filtros de coorte selecionam ingressos e preservam conclusões posteriores.
 
-## Coortes e acompanhamento
+## Privacidade e resultados
 
-Uma **coorte** reúne ingressantes do mesmo curso e semestre. O vínculo exige curso e nome normalizado iguais, conclusão posterior e unicidade nos dois sentidos. Os status são `exact_unique`, `ambiguous` e `not_found`; apenas o primeiro conta como correspondência única.
+- **Não são gerados CSVs individuais:** as saídas são resumos em `output/csv/`, relatórios em `output/reports/` e figuras em `output/figures/`. Auditorias não exibem nomes de estudantes nem nomes/caminhos dos PDFs.
+- O snapshot local usa identificadores aleatórios, sem nomes, números de sequência, turno ou modalidade de ingresso. O cache usa índices HMAC e respostas sem nomes em texto claro. **São dados pseudonimizados e continuam privados**, assim como a chave local do cache.
+- Por padrão, gráficos e resumos suprimem grupos menores que **5** e estimativas com poucos resolvidos. A auditoria local mantém contagens para conferir a extração. Supressão não garante anonimato: grupos e cruzamentos ainda podem permitir reidentificação.
+- PDFs, `.env`, cache, chaves e toda a pasta `output/` ficam fora do Git. **Publique o código, não os dados locais.** Revise qualquer resultado antes de compartilhá-lo.
 
-| Métrica | Significado |
-|---|---|
-| Tamanho e composição da coorte | Total de ingressantes e números esperados de mulheres/homens entre os resolvidos, na coorte e no subconjunto reencontrado. |
-| Proporção de correspondência | Vínculos `exact_unique` divididos pelo total de ingressantes da coorte. |
-| Tempo até conclusão | Diferença em semestres nos vínculos únicos; média, mediana, mínimo e máximo, no geral e por curso. Exemplo: 2019/1 → 2020/1 = 2 semestres. |
-| Tempo de acompanhamento | Semestres entre o ingresso e a última lista de conclusão disponível do curso. Sem lista, fica vazio; se ela antecede o ingresso, vale zero. Por padrão, nenhuma coorte é excluída. |
+Ao regenerar análises, as antigas exportações individuais são removidas. Snapshots antigos são migrados ao abrir os gráficos ou reconstruir relatórios; o cache é migrado ao ser aberto. Isso não remove cópias externas ou backups. O Genderize é um modelo binário sujeito a vieses e não representa a diversidade de gênero.
 
-Essa proporção mede **ingressantes reencontrados nas listas de conclusão disponíveis**, não a taxa oficial de conclusão. PDFs ausentes, mudanças de nome/curso, homônimos e coortes recentes limitam o resultado. Um vínculo por nome não confirma identidade.
+## Configuração e manutenção
 
-## Resultados e privacidade
-
-| Pasta | Conteúdo |
-|---|---|
-| `output/reports/` | Relatório principal (`relatorio_elas_ti.txt`) e auditoria dos PDFs (`validacao_pdfs.txt`). |
-| `output/csv/` | Registros, resumos estatísticos, comparações, coortes e casos para revisão. |
-| `output/figures/` | Gráficos de participação feminina no ingresso, na conclusão e na comparação das séries. |
-
-O snapshot `output/registros_snapshot.json` permite reconstruir os relatórios. O dry-run atualiza apenas a auditoria, não análises anteriores.
-
-**PDFs, `.env`, cache e saídas ficam fora do Git.** Relatórios agregados não listam nomes; CSVs detalhados e snapshot exigem acesso restrito. Apenas os nomes consultados são enviados ao Genderize, nunca os PDFs. Repositório privado, sem licença definida.
-
-As estimativas estão sujeitas à cobertura, a vieses e à calibração do Genderize. O modelo binário não representa a diversidade de gênero.
-
-## Desenvolvimento
-
-O código está em `src/elas_ti/`, as configurações em `config.py` e os testes em `tests/`.
+`config.py` define cursos, inferência, acompanhamento e `MIN_GROUP_SIZE` (padrão 5). Reduzir esse limite diminui a proteção. `--rebuild-reports` reconstrói relatórios do snapshot local; `--pdf-root` e `--output-dir` alteram as pastas. Veja outras opções em `python main.py --help`.
 
 ```sh
 pytest
+python scripts/check_publication.py --history
 ```
 
-Os testes usam dados sintéticos e bloqueiam chamadas reais à API. As integrações com PDFs institucionais são executadas apenas quando os arquivos estão disponíveis localmente. O GitHub Actions executa a suíte sem chaves ou PDFs privados.
+Os testes usam dados sintéticos e bloqueiam HTTP real; integrações institucionais só rodam com PDFs locais. O GitHub Actions verifica testes e possíveis arquivos privados/credenciais no histórico. Essa verificação preventiva não substitui revisão humana. A visibilidade do repositório não é alterada pelo programa. Ainda não há licença definida.
