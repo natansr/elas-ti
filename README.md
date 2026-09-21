@@ -2,7 +2,7 @@
 
 Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação
 
-O ELAS-TI é um software de apoio à pesquisa desenvolvido na Universidade Estadual de Goiás, Unidade Universitária de Goianésia. Seu objetivo é analisar a participação feminina entre ingressantes e concluintes de cursos de TI a partir de relatórios institucionais em PDF.
+O ELAS-TI é um software de apoio à pesquisa desenvolvido pelo grupo de pesquisa ANDSol/UEG, na Universidade Estadual de Goiás, Unidade Universitária de Goianésia. Seu objetivo é analisar a participação feminina entre ingressantes e concluintes de cursos de TI a partir de relatórios institucionais em PDF.
 
 O processamento reúne extração e validação dos registros, identificação de repetições, análise estatística e acompanhamento de coortes. A inferência probabilística de gênero utiliza o [Genderize.io](https://genderize.io), com contexto brasileiro. As estimativas são baseadas nos nomes e não correspondem a gênero autodeclarado.
 
@@ -101,4 +101,12 @@ python scripts/check_publication.py --history
 
 A suíte bloqueia chamadas reais à API. Os testes de integração com documentos institucionais são executados apenas quando os PDFs estão disponíveis localmente. O GitHub Actions executa os testes e a verificação preventiva de arquivos privados e possíveis credenciais no histórico. Essa verificação não substitui a revisão dos materiais antes da publicação.
 
-O projeto ainda não possui licença definida.
+## Autoria
+
+Vitória Maria Diniz Pereira e Natan de Souza Rodrigues. Projeto desenvolvido pelo grupo de pesquisa **ANDSol/UEG**.
+
+## Licença
+
+O ELAS-TI é distribuído sob os termos da GNU General Public License, versão 3 ou posterior (`GPL-3.0-or-later`). O texto completo está em [LICENSE](LICENSE).
+
+Copyright (C) 2026 Vitória Maria Diniz Pereira e Natan de Souza Rodrigues.
