@@ -17,3 +17,7 @@ manual_validation.csv
 build/
 dist/
 .coverage
+*.key
+*.[pP][dD][fF]
+registros_snapshot.json
+*.sqlite-*

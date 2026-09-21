@@ -1,6 +1,8 @@
 import csv
 from pathlib import Path
 
+from .privacy import protect_summaries, remove_legacy_exports, review_summary
+
 
 def write_csv(path: Path, rows: list[dict], fields=None):
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -16,7 +18,7 @@ def write_csv(path: Path, rows: list[dict], fields=None):
 def audit_documents(documents, output: Path):
     rows = [
         {
-            "arquivo": d.arquivo,
+            "documento": f"documento_{i:03d}",
             "tipo_registro": d.tipo_registro,
             "registros_brutos": d.registros_brutos,
             "registros_unicos": d.registros_unicos,
@@ -26,11 +28,12 @@ def audit_documents(documents, output: Path):
             "status": d.status,
             "avisos": " | ".join(d.warnings),
         }
-        for d in documents
+        for i, d in enumerate(documents, 1)
     ]
     write_csv(output / "csv/documentos_processados.csv", rows)
     write_csv(
-        output / "csv/casos_para_revisao.csv", [r for d in documents for r in d.review]
+        output / "csv/resumo_revisao.csv",
+        review_summary([r for d in documents for r in d.review]),
     )
     lines = ["ELAS-TI — validação dos PDFs", f"Documentos: {len(documents)}"]
     for d in documents:
@@ -80,26 +83,27 @@ Linhas nos gráficos conectam períodos disponíveis; não imputam semestres aus
 
 def generate_reports(records, documents, output: Path, settings):
     import json
-    from dataclasses import asdict
 
     from .cohort_matching import match_cohorts, summarize_cohorts, time_summary
     from .plots import create_plots
     from .statistics import compare_periods, grouped_summary, temporal_summary
 
     output.mkdir(parents=True, exist_ok=True)
-    write_csv(
-        output / "csv/registros_classificados.csv",
-        [dict(record_id=i, **asdict(r)) for i, r in enumerate(records)],
-    )
+    remove_legacy_exports(output)
+    minimum = getattr(settings, "MIN_GROUP_SIZE", 5)
+
+    def safe(rows):
+        return protect_summaries(rows, minimum)
+
     series, summaries = {}, {}
     for kind, label in [("ingressante", "ingressantes"), ("concluinte", "concluintes")]:
         subset = [r for r in records if r.tipo_registro == kind]
-        series[kind] = temporal_summary(subset)
-        summaries[kind] = grouped_summary(subset, ())
+        series[kind] = safe(temporal_summary(subset))
+        summaries[kind] = safe(grouped_summary(subset, ()))
         write_csv(output / f"csv/resumo_{label}_periodo.csv", series[kind])
         write_csv(
             output / f"csv/resumo_{label}_curso_periodo.csv",
-            temporal_summary(subset, True),
+            safe(temporal_summary(subset, True)),
         )
         for suffix, fields in [
             ("global", ()),
@@ -109,14 +113,13 @@ def generate_reports(records, documents, output: Path, settings):
         ]:
             write_csv(
                 output / f"csv/resumo_{label}_{suffix}.csv",
-                grouped_summary(subset, fields),
+                safe(grouped_summary(subset, fields)),
             )
     comparison = compare_periods(series["ingressante"], series["concluinte"])
     matches = match_cohorts(records)
-    cohorts = summarize_cohorts(records, matches, settings.MIN_FOLLOWUP_SEMESTERS)
-    durations = time_summary(matches)
+    cohorts = safe(summarize_cohorts(records, matches, settings.MIN_FOLLOWUP_SEMESTERS))
+    durations = safe(time_summary(matches))
     write_csv(output / "csv/comparacao_ingressantes_concluintes.csv", comparison)
-    write_csv(output / "csv/cohort_matches.csv", matches)
     write_csv(output / "csv/resumo_coortes.csv", cohorts)
     write_csv(output / "csv/tempo_ate_conclusao.csv", durations)
     review = [r for d in documents for r in d.review]
@@ -125,7 +128,7 @@ def generate_reports(records, documents, output: Path, settings):
         for m in matches
         if m["status"] == "ambiguous"
     ]
-    write_csv(output / "csv/casos_para_revisao.csv", review)
+    write_csv(output / "csv/resumo_revisao.csv", review_summary(review))
     # Todas as estruturas a seguir são agregadas, sem nomes ou caminhos de PDF.
     sections = [
         (
@@ -150,6 +153,7 @@ def generate_reports(records, documents, output: Path, settings):
     ]
     text = [
         "ELAS-TI",
+        f"Privacidade: grupos com menos de {minimum} registros são suprimidos; saídas exigem revisão antes de divulgação.",
         "Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação",
         "Universidade Estadual de Goiás",
         "Unidade Universitária de Goianésia",

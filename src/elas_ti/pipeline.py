@@ -1,5 +1,3 @@
-import hashlib
-import json
 import logging
 import os
 import platform
@@ -15,6 +13,7 @@ from .genderize_client import GenderizeClient, apply_prediction
 from .models import DocumentResult, StudentRecord
 from .name_normalizer import name_key
 from .pdf_reader import discover_pdfs, read_pdf
+from .privacy import load_snapshot, pseudonymize_payload, write_snapshot
 from .reports import audit_documents, generate_reports
 
 
@@ -65,18 +64,10 @@ def save_snapshot(records, documents, output, settings):
         },
         "created_at": datetime.now(timezone.utc).isoformat(),
         "settings": {k: getattr(settings, k) for k in dir(settings) if k.isupper()},
-        "source_sha256": [
-            hashlib.sha256(Path(d.arquivo).read_bytes()).hexdigest() for d in documents
-        ],
         "records": [asdict(r) for r in records],
         "documents": [asdict(d) for d in documents],
     }
-    path = output / "registros_snapshot.json"
-    temporary = path.with_suffix(".tmp")
-    temporary.write_text(
-        json.dumps(payload, ensure_ascii=False, allow_nan=False), encoding="utf-8"
-    )
-    temporary.replace(path)
+    write_snapshot(pseudonymize_payload(payload), output / "registros_snapshot.json")
 
 
 def rebuild(output: Path, settings):
@@ -88,15 +79,17 @@ def rebuild(output: Path, settings):
             "Snapshot local ausente; execute primeiro a análise normal ou --no-api."
         )
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        if payload["schema_version"] != 1:
-            raise ValueError("Versão incompatível")
+        payload = load_snapshot(output)
         records = [StudentRecord(**r) for r in payload["records"]]
         documents = []
         for item in payload["documents"]:
             item["records"] = [StudentRecord(**r) for r in item["records"]]
             documents.append(DocumentResult(**item))
         snapshot_settings = SimpleNamespace(**payload["settings"])
+        snapshot_settings.MIN_GROUP_SIZE = max(
+            getattr(snapshot_settings, "MIN_GROUP_SIZE", 5),
+            getattr(settings, "MIN_GROUP_SIZE", 5),
+        )
     except (ValueError, TypeError, KeyError):
         raise ValueError(
             "Snapshot inválido ou incompatível; gere novamente a análise."

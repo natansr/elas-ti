@@ -11,3 +11,6 @@ RANDOM_SEED = 42
 MIN_FOLLOWUP_SEMESTERS = None
 COURSES_OF_INTEREST = []
 COURSE_ALIASES = {}
+
+# Reduz exposição em gráficos e resumos; não garante anonimato por si só.
+MIN_GROUP_SIZE = 5

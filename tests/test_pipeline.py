@@ -16,6 +16,7 @@ def make_pdf(path, text):
 
 def test_offline_pipeline_rebuild_and_privacy(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr("config.MIN_GROUP_SIZE", 1)
     make_pdf(tmp_path / "pdfs/a.pdf", ENTRANTS)
     make_pdf(tmp_path / "pdfs/b.pdf", GRADS)
     assert main(["--no-api"]) == 0

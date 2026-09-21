@@ -58,5 +58,9 @@ def create_plots(entrants: list[dict], graduates: list[dict], output: Path):
                 transform=ax.transAxes,
                 ha="center",
             )
+        fig.supxlabel(
+            "Estimativa baseada no Genderize.io; não representa gênero autodeclarado.",
+            fontsize=8,
+        )
         fig.savefig(output / filename, dpi=180)
         plt.close(fig)
