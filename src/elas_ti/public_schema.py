@@ -135,6 +135,7 @@ def validate_directory(root):
         ".nojekyll",
         "data/resumo.json",
         "data/resumo.csv",
+        "assets/marca_ueg.png",
     }
     for path in root.rglob("*"):
         if path.is_symlink() or (
