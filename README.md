@@ -1,6 +1,8 @@
 # ELAS-TI
 
-Software em Python para análise da participação feminina entre ingressantes e concluintes de cursos de Tecnologia da Informação. Desenvolvido por **Vitória Maria Diniz e Natan S. Rodrigues**, no grupo de pesquisa **ANDSol/UEG**.
+Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação
+
+Software em Python para análise da participação feminina entre ingressantes e concluintes de cursos de Tecnologia da Informação. Desenvolvido por **Vitória Maria Diniz e Natan de S. Rodrigues**, no grupo de pesquisa **ANDSol/UEG**.
 
 O [painel público](https://natansr.github.io/elas-ti/) apresenta os resultados do curso de Sistemas de Informação da **UEG/UnU Goianésia**, com dados fornecidos pela Secretaria Acadêmica da unidade. Há filtros, gráficos interativos, ajuda “?” e downloads em CSV e JSON.
 
@@ -101,4 +103,4 @@ python scripts/validate_public_data.py
 
 Os testes utilizam dados sintéticos e bloqueiam chamadas reais à API. A verificação do Git busca arquivos privados e possíveis credenciais, sem substituir a revisão do material publicado.
 
-Licença [GNU GPL versão 3 ou posterior](LICENSE) (`GPL-3.0-or-later`). Copyright (C) 2026 Vitória Maria Diniz e Natan S. Rodrigues.
+Licença [GNU GPL versão 3 ou posterior](LICENSE) (`GPL-3.0-or-later`). Copyright (C) 2026 Vitória Maria Diniz e Natan de S. Rodrigues.

@@ -16,7 +16,7 @@ button, select { font: inherit; }
 .institution-mark strong { display: block; font-size: 18px; }
 .institution-mark span { display: block; font-size: 13px; }
 .institution-mark img { display: block; width: 300px; height: auto; max-width: 100%; }
-.project-title { border-left: 1px solid var(--line); padding-left: 28px; }
+.project-title { flex: 1; min-width: 0; border-left: 1px solid var(--line); padding-left: 28px; }
 h1 { font-size: 24px; letter-spacing: -.03em; margin: 0; }
 .project-title p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
 .institution nav { display: flex; gap: 22px; margin-left: auto; font-size: 13px; }
@@ -94,7 +94,7 @@ noscript { display: block; padding: 20px; text-align: center; }
   .institution { flex-wrap: wrap; padding: 15px 16px; gap: 14px; }
   .institution-mark { flex: 1 1 100%; }
   .institution-mark img { width: 270px; }
-  .project-title { padding: 0; border: 0; max-width: 220px; }
+  .project-title { padding: 0; border: 0; flex-basis: 100%; max-width: none; }
   .institution nav { gap: 16px; }
   h1 { font-size: 21px; }
   main { padding: 0 12px; }

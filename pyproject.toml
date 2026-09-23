@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "elas-ti"
 version = "0.1.0"
 requires-python = ">=3.11"
-description = "Estudo longitudinal da participação feminina estimada nos cursos de TI"
+description = "Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação"
 
 [tool.setuptools.packages.find]
 where = ["src"]
