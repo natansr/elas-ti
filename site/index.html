@@ -44,25 +44,25 @@
         <p class="chart-foot" id="chart-foot">Fonte: documentos institucionais.</p>
       </div>
       <details class="table-panel"><summary>Tabela dos resultados selecionados</summary><div class="table-scroll"><table><caption>Quantidades feminina e masculina são esperadas e podem ser fracionárias. Traço significa inferência indisponível.</caption><thead><tr><th scope="col">Período</th><th scope="col">Total</th><th scope="col">Com inferência</th><th scope="col">Não identificados</th><th scope="col">Feminina (estimada)</th><th scope="col">Masculina (estimada)</th><th scope="col">Feminina (%)</th><th scope="col">Cobertura (%)</th></tr></thead><tbody id="rows"></tbody></table></div></details>
-      <div class="downloads"><div class="label-row"><span>Download dos dados</span><button type="button" class="help" data-help="downloads" aria-label="Ajuda: Downloads" aria-haspopup="dialog">?</button></div><a href="data/resumo.csv" download>CSV</a><a href="data/resumo.json" download>JSON</a></div>
+      <div class="downloads"><div class="label-row"><span><i lang="en">Download</i> dos dados</span><button type="button" class="help" data-help="downloads" aria-label="Ajuda: Downloads" aria-haspopup="dialog">?</button></div><a href="data/resumo.csv" download>CSV</a><a href="data/resumo.json" download>JSON</a></div>
       <p class="muted">Os arquivos incluem todos os períodos e cursos, independentemente dos filtros.</p>
       </section>
     </div>
     <details id="metodo" class="method"><summary>Método e limitações</summary>
       <div class="method-grid">
-        <article><h3>Fonte e processamento</h3><p>Os registros são extraídos de relatórios de ingresso e conclusão da Secretaria Acadêmica da UEG/UnU Goianésia. A extração é local; os nomes consultados são enviados ao Genderize.io. PDFs e registros individuais não são publicados. O site contém apenas dados agregados por curso e período.</p></article>
-        <article><h3>Inferência de gênero</h3><p>O software utiliza o <a href="https://genderize.io" rel="noopener">Genderize.io</a>, com contexto brasileiro, para obter probabilidades a partir dos nomes. As categorias feminina e masculina são estimativas do modelo, não informações autodeclaradas. Resultados sem inferência permanecem não identificados.</p></article>
+        <article><h3>Fonte e processamento</h3><p>Os registros são extraídos de relatórios de ingresso e conclusão da Secretaria Acadêmica da UEG/UnU Goianésia. A extração é local; os nomes consultados são enviados ao <i lang="en">Genderize.io</i>. PDFs e registros individuais não são publicados. O <i lang="en">site</i> contém apenas dados agregados por curso e período.</p></article>
+        <article><h3>Inferência de gênero</h3><p>O <i lang="en">software</i> utiliza o <a href="https://genderize.io" rel="noopener"><i lang="en">Genderize.io</i></a>, com contexto brasileiro, para obter probabilidades a partir dos nomes. As categorias feminina e masculina são estimativas do modelo, não informações autodeclaradas. Resultados sem inferência permanecem não identificados.</p></article>
         <article><h3>Cálculo dos percentuais</h3><p>A quantidade feminina esperada é a soma das probabilidades femininas, não uma contagem de classificações confirmadas. O percentual é 100 vezes essa soma dividida pelos registros com inferência. Cobertura é a proporção de registros com inferência; 100% de cobertura não significa 100% de acerto.</p></article>
         <article><h3>Incerteza e interpretação</h3><p>O intervalo probabilístico de 95% usa a distribuição Poisson-binomial, sob independência entre registros. Não é um intervalo de confiança amostral e não incorpora todos os vieses ou erros de calibração do serviço. A inferência pode apresentar vieses e não representa toda a diversidade de gênero. Ingresso e conclusão no mesmo período não constituem uma coorte; sua comparação não mede evasão.</p></article>
       </div>
       <p class="muted">Períodos sem documentos não equivalem a zero. Os agregados incluem grupos pequenos; ausência de nomes não garante anonimato absoluto.</p>
     </details>
   </main>
-  <footer><p><strong>ANDSol/UEG</strong><br>Vitória Maria Diniz e Natan de S. Rodrigues</p><p>Dados: Secretaria Acadêmica da UEG/UnU Goianésia<br>Inferência probabilística: <a href="https://genderize.io">Genderize.io</a></p><p><a href="https://github.com/natansr/elas-ti">Código e documentação</a><br>Software livre · GPL-3.0-or-later</p></footer>
+  <footer><p><strong>ANDSol/UEG</strong><br>Vitória Maria Diniz e Natan de S. Rodrigues</p><p>Dados: Secretaria Acadêmica da UEG/UnU Goianésia<br>Inferência probabilística: <a href="https://genderize.io"><i lang="en">Genderize.io</i></a></p><p><a href="https://github.com/natansr/elas-ti">Código e documentação</a><br><i lang="en">Software</i> livre · GPL-3.0-or-later</p></footer>
   <dialog id="help-dialog" aria-labelledby="help-title" aria-describedby="help-text">
     <div class="help-heading"><h2 id="help-title">Ajuda</h2><form method="dialog"><button class="close-help" aria-label="Fechar ajuda">Fechar ×</button></form></div>
     <p id="help-text"></p>
   </dialog>
-  <noscript>O painel interativo requer JavaScript. Os resultados estão disponíveis nos arquivos CSV e JSON.</noscript>
+  <noscript>O painel interativo requer <i lang="en">JavaScript</i>. Os resultados estão disponíveis nos arquivos CSV e JSON.</noscript>
 </body>
 </html>

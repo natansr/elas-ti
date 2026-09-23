@@ -5,6 +5,18 @@ const number = value => value == null ? '—' : new Intl.NumberFormat('pt-BR', {
 const percent = value => value == null ? '—' : `${number(value)}%`;
 const palette = {female: '#7751a8', male: '#337bad', total: '#49456d'};
 let rows = [];
+// Texto dinâmico com estrangeirismos em itálico, sem interpretar HTML.
+function setFormattedText(element, text) {
+  const terms = /\b(female|male|software|downloads?|cache|null|site|Genderize\.io|JavaScript)\b/gi;
+  const fragments = text.split(terms);
+  element.replaceChildren(...fragments.map((fragment, index) => {
+    if (index % 2 === 0) return document.createTextNode(fragment);
+    const italic = document.createElement('i');
+    italic.lang = 'en';
+    italic.textContent = fragment;
+    return italic;
+  }));
+}
 function options(element, values, current) {
   element.replaceChildren(...values.map(value => new Option(value, value)));
   if (values.includes(current)) element.value = current;
@@ -20,7 +32,7 @@ function updatePeriods() {
 }
 function emptyChart(message) {
   if (window.Plotly) Plotly.purge('chart');
-  $('chart').replaceChildren(document.createTextNode(message));
+  setFormattedText($('chart'), message);
 }
 function render() {
   const invalid = $('from').value > $('to').value;
@@ -43,7 +55,7 @@ function render() {
   $('chart-title').textContent = titles[type];
   const notes = {counts:'Contagens de registros nos documentos disponíveis. Períodos ausentes não representam zero.', bars:'Quantidades esperadas entre registros com inferência. Valores fracionários são resultados do modelo.', line:'Percentual entre registros com inferência. As barras verticais indicam os quantis de 2,5% e 97,5% do modelo; períodos sem inferência permanecem sem valor.', pie:'Proporções calculadas pela soma das quantidades esperadas no recorte. Registros sem inferência ficam fora da pizza.', coverage:'Percentual de registros com inferência disponível em relação ao total de cada período.'};
   $('chart-note').textContent = notes[type];
-  $('chart-foot').textContent = type === 'counts' ? 'Contagens documentais. Este gráfico não depende de inferência de gênero.' : !resolved ? 'Nenhum resultado de inferência disponível para o recorte selecionado.' : 'Inferência probabilística: Genderize.io. Os percentuais consideram somente registros com inferência.';
+  setFormattedText($('chart-foot'), type === 'counts' ? 'Contagens documentais. Este gráfico não depende de inferência de gênero.' : !resolved ? 'Nenhum resultado de inferência disponível para o recorte selecionado.' : 'Inferência probabilística: Genderize.io. Os percentuais consideram somente registros com inferência.');
   if (!n) return emptyChart('Nenhum dado para o período selecionado.');
   if (!resolved && ['bars','line','pie'].includes(type)) return emptyChart('Composição indisponível: não há inferência de gênero neste recorte.');
   if (!window.Plotly) return emptyChart('A biblioteca de gráficos não carregou. A tabela e os downloads continuam disponíveis.');
@@ -101,7 +113,7 @@ document.querySelectorAll('[data-help]').forEach(button => {
   button.addEventListener('click', () => {
     const [title, description] = helpContent[button.dataset.help];
     $('help-title').textContent = title;
-    $('help-text').textContent = description;
+    setFormattedText($('help-text'), description);
     $('help-dialog').showModal();
   });
 });
