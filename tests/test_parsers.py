@@ -148,3 +148,26 @@ def test_institutional_entry_modes_with_synthetic_names(entry):
     ]
     assert all(r.tipo_ingresso == entry for r in result.records)
     assert all(r.turno == "NOTURNO" for r in result.records)
+
+
+def test_wrapped_graduate_name_around_sequence():
+    page = (
+        GRADS
+        + """2 JOAO EXEMPLO SOUZA NOTURNO
+MARIA EXEMPLO SOBRENOME DE DEMONSTRACAO
+3 NOTURNO
+SILVA
+4 PEDRO EXEMPLO TESTE NOTURNO
+"""
+    )
+    result = parse_formandos([page])
+    assert result.status == "OK"
+    assert result.registros_unicos == 4
+    assert (
+        result.records[2].nome_original
+        == "MARIA EXEMPLO SOBRENOME DE DEMONSTRACAO SILVA"
+    )
+    # Sem vizinhos sequenciais, não inventar uma associação entre linhas.
+    invalid = parse_formandos([page.replace("4 PEDRO", "5 PEDRO")])
+    assert invalid.blocking
+    assert invalid.registros_unicos == 3

@@ -30,3 +30,6 @@ registros_snapshot.json
 /pdfs/**
 !/pdfs/**/
 !/pdfs/**/.gitkeep
+
+# Compactados também ficam privados fora das pastas padrão.
+*.[7][zZ]

@@ -15,6 +15,36 @@ SHIFT = r"(?:NOTURNO|MATUTINO|VESPERTINO|INTEGRAL|DIURNO)"
 ENTRY = r"(?:Vestibular|SISU|ENEM|SAS|Graduado|Transferência(?:\s+(?:Interna|Externa))?|Portador de Diploma|Reingresso|Reingresso Especial|Processo Seletivo)"
 
 
+def valid_name(value):
+    return (
+        bool(value)
+        and value == value.upper()
+        and all(
+            c.isalpha() or unicodedata.category(c) == "Mn" or c in " .'-’"
+            for c in value
+        )
+    )
+
+
+def wrapped_graduate_name(lines, index, sequence):
+    """Nome em duas linhas, acima/abaixo da sequência e do turno centralizados."""
+    if index < 2 or index + 2 >= len(lines):
+        return ""
+    before = re.match(r"^(\d+)\s+", lines[index - 2])
+    after = re.match(r"^(\d+)\s+", lines[index + 2])
+    fragments = [lines[index - 1], lines[index + 1]]
+    if (
+        before
+        and after
+        and int(before[1]) == sequence - 1
+        and int(after[1]) == sequence + 1
+        and all(valid_name(part) for part in fragments)
+        and not any(re.search(r"\b" + SHIFT + r"\b", part, re.I) for part in fragments)
+    ):
+        return " ".join(fragments)
+    return ""
+
+
 def parse_pages(
     pages: list[str], filename: str, kind: str, aliases: dict | None = None
 ) -> DocumentResult:
@@ -87,14 +117,9 @@ def parse_pages(
                 )
                 continue
             original = payload[: boundary.start()].rstrip()
-            if (
-                not original
-                or original != original.upper()
-                or not all(
-                    c.isalpha() or unicodedata.category(c) == "Mn" or c in " .'-’"
-                    for c in original
-                )
-            ):
+            if not original and kind == "concluinte":
+                original = wrapped_graduate_name(lines, i, int(row[1]))
+            if not valid_name(original):
                 result.warnings.append(
                     f"Página {page_number}, sequência {row[1]}: nome não delimitado com segurança."
                 )

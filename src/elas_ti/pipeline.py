@@ -8,11 +8,12 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from .archive_input import prepared_pdfs
 from .cache import GenderCache
 from .genderize_client import GenderizeClient, apply_prediction
 from .models import DocumentResult, StudentRecord
 from .name_normalizer import name_key
-from .pdf_reader import discover_pdfs, read_pdf
+from .pdf_reader import read_pdf
 from .privacy import load_snapshot, pseudonymize_payload, write_snapshot
 from .reports import audit_documents, generate_reports
 
@@ -106,9 +107,8 @@ def run(args, settings):
     protect_output(args.output_dir)
     if args.rebuild_reports:
         return rebuild(args.output_dir, settings)
-    documents = [
-        read_pdf(p, settings.COURSE_ALIASES) for p in discover_pdfs(args.pdf_root)
-    ]
+    with prepared_pdfs(args.pdf_root, args.output_dir) as paths:
+        documents = [read_pdf(p, settings.COURSE_ALIASES) for p in paths]
     logging.getLogger(__name__).debug("Documentos localizados: %d", len(documents))
     detect_document_overlap(documents)
     print(audit_documents(documents, args.output_dir))

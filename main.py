@@ -8,6 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 import config
+from elas_ti.archive_input import ArchiveInputError
 from elas_ti.genderize_client import GenderizeError
 from elas_ti.pipeline import run
 
@@ -61,7 +62,7 @@ def main(argv=None):
 
             return run_menu(args.output_dir)
         return run(args, config)
-    except GenderizeError as error:
+    except (GenderizeError, ArchiveInputError) as error:
         print(str(error), file=sys.stderr)
         return 2
     except ValueError:

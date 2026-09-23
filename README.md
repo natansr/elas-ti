@@ -34,7 +34,7 @@ A chave do Genderize.io é configurada na variável `GENDERIZE_API_KEY`, em um a
 
 ## Execução
 
-Os documentos de entrada ficam em `pdfs/ingressantes/` e `pdfs/formandos/`. Curso, período e tipo de registro são identificados pelo conteúdo dos relatórios.
+Os documentos de entrada, em PDF ou `.7z`, ficam em `pdfs/ingressantes/` e `pdfs/formandos/`. Curso, período e tipo de registro são identificados pelo conteúdo dos relatórios.
 
 | Comando | Finalidade |
 |---|---|
@@ -51,7 +51,9 @@ As configurações de cursos, inferência e acompanhamento ficam em `config.py`.
 
 ## Painel interativo
 
-Os PDFs de ingresso ficam em **`pdfs/ingressantes/`** e os de conclusão em **`pdfs/formandos/`**. As pastas já fazem parte da estrutura do projeto; os PDFs são ignorados pelo Git.
+Os PDFs de ingresso ficam em **`pdfs/ingressantes/`** e os de conclusão em **`pdfs/formandos/`**. As pastas aceitam PDFs avulsos e arquivos `.7z`, inclusive com subpastas internas. Todo o conteúdo de entrada fica fora do Git; apenas os marcadores vazios de pasta são versionados.
+
+A descompactação é automática e local. Somente PDFs são extraídos para uma pasta temporária dentro de `output/`, removida ao terminar a leitura, inclusive em caso de erro. Os originais permanecem intactos. PDFs idênticos encontrados nos compactados são processados uma única vez, mesmo quando já existem avulsos. Relatórios parcialmente sobrepostos continuam exigindo revisão. Arquivos com senha, corrompidos, sem PDFs ou maiores que 1 GiB descompactados interrompem a execução com uma mensagem, sem publicar dados. Compactados dentro de outros compactados não são abertos.
 
 A extração, a análise e a exportação pública são executadas na raiz do projeto:
 

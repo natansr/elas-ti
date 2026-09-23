@@ -27,7 +27,7 @@ def blocked_path(path):
     return (
         p.name.startswith(".env")
         and p.name != ".env.example"
-        or p.suffix.lower() in {".pdf", ".csv", ".sqlite", ".db", ".key"}
+        or p.suffix.lower() in {".pdf", ".7z", ".csv", ".sqlite", ".db", ".key"}
         or any(part in {"cache", "output", ".venv"} for part in p.parts)
         or p.name == "registros_snapshot.json"
     )
