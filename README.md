@@ -8,6 +8,8 @@ O processamento reúne extração e validação dos registros, identificação d
 
 A extração e a análise funcionam localmente, pelo terminal. O projeto mantém os gráficos Matplotlib e inclui um painel interativo com Plotly.js, preparado para GitHub Pages. O painel recebe somente estatísticas agregadas em JSON e CSV; os PDFs e os registros individuais ficam no computador.
 
+[Painel público — UEG/UnU Goianésia](https://natansr.github.io/elas-ti/)
+
 ## Instalação
 
 O projeto requer Python 3.11 ou superior. A preparação do ambiente e a instalação das dependências são feitas na pasta do repositório:
@@ -30,7 +32,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-A chave do Genderize.io é configurada na variável `GENDERIZE_API_KEY`, em um arquivo `.env` local baseado em `.env.example`. A modalidade com API envia os nomes consultados ao serviço; os PDFs permanecem no computador. O processamento sem API utiliza somente os resultados já armazenados no cache.
+Cada pessoa utiliza sua própria chave, obtida na [conta do Genderize.io](https://genderize.io/register). A chave do Genderize.io é configurada na variável `GENDERIZE_API_KEY`, em um arquivo `.env` local baseado em `.env.example`. A modalidade com API envia os nomes consultados ao serviço; os PDFs permanecem no computador. O processamento sem API utiliza somente os resultados já armazenados no cache.
 
 ## Execução
 
@@ -41,6 +43,7 @@ Os documentos de entrada, em PDF ou `.7z`, ficam em `pdfs/ingressantes/` e `pdfs
 | `python main.py --dry-run` | Extração e validação dos PDFs, sem consulta à API. |
 | `python main.py` | Análise completa, com consulta ao Genderize.io para nomes ausentes do cache. |
 | `python main.py --no-api` | Análise com o cache local; registros sem inferência permanecem não identificados. |
+| `python main.py --update-site` | Extração, análise e exportação para o site em um único comando. |
 | `python main.py --export-site` | Exportação da última análise para `site/data/resumo.json` e `resumo.csv`, sem consulta à API. |
 | `python main.py --graphs` | Menu de seleção e exportação dos gráficos da última análise salva. |
 | `python main.py --rebuild-reports` | Reconstrução dos relatórios a partir dos dados salvos localmente. |
@@ -58,13 +61,13 @@ A descompactação é automática e local. Somente PDFs são extraídos para uma
 A extração, a análise e a exportação pública são executadas na raiz do projeto:
 
 ```sh
-python main.py && python main.py --export-site
+python main.py --update-site
 ```
 
 Sem consulta ao Genderize.io, o processamento utiliza apenas o cache disponível:
 
 ```sh
-python main.py --no-api && python main.py --export-site
+python main.py --update-site --no-api
 ```
 
 Sem inferências no cache, o painel apresenta as contagens documentais e os registros não identificados. Os percentuais de gênero ficam indisponíveis. A exportação usa a última análise salva: novos PDFs precisam passar novamente pelo processamento.
@@ -81,9 +84,13 @@ Os arquivos `site/data/resumo.json` e `site/data/resumo.csv` contêm os mesmos a
 
 ### GitHub Pages
 
-A pasta `site/` é a única incluída na publicação. Em **Settings → Pages**, a origem é **GitHub Actions**. Após o commit e push do site e dos agregados, a execução manual de **Actions → Publicar painel ELAS-TI → Run workflow**, na `main`, valida os arquivos e publica a página. Atualizações seguem o mesmo fluxo. O workflow não executa a extração nem recebe PDFs ou chave de API.
+A pasta `site/` é a única incluída na publicação. Em **Settings → Pages**, a origem é **GitHub Actions**. Após o commit e push de alterações no site ou nos agregados para a `main`, o workflow valida os arquivos e publica automaticamente a página. Também há execução manual em **Actions → Publicar painel ELAS-TI → Run workflow**. O workflow não executa a extração nem recebe PDFs ou chave de API.
 
 O site é destinado a acesso público. Pages em repositórios privados depende do plano da conta; a configuração não altera a visibilidade do repositório. [Documentação do GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
+
+### Reprodução
+
+O código e os agregados são distribuídos sem os documentos institucionais. A comunidade pode consultar os mesmos gráficos a partir de `site/data/`, sem chave de API ou PDFs. Uma nova extração requer documentos próprios no layout suportado; inferências novas requerem uma chave pessoal do Genderize.io. Os dados desta análise provêm da Secretaria da **UEG/UnU Goianésia**, curso de Sistemas de Informação. A execução depende dos documentos e das respostas do serviço, que podem variar entre consultas.
 
 ## Gráficos e resultados locais
 

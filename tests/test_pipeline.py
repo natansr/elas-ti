@@ -76,3 +76,26 @@ def test_nonempty_output_ignore_is_not_overwritten(tmp_path):
     with pytest.raises(ValueError):
         protect_output(tmp_path)
     assert marker.read_text() == "*.tmp\n"
+
+
+def test_update_site_offline_in_one_command(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    make_pdf(tmp_path / "pdfs/a.pdf", ENTRANTS)
+    assert main(["--update-site", "--no-api"]) == 0
+    data = json.loads((tmp_path / "site/data/resumo.json").read_text())
+    assert data["rows"][0]["total"] == 2
+    assert data["rows"][0]["resolvidos"] == 0
+    assert (tmp_path / "site/data/resumo.csv").exists()
+
+
+def test_update_site_failure_preserves_previous_publication(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    public = tmp_path / "site/data/resumo.json"
+    public.parent.mkdir(parents=True)
+    public.write_text("previous")
+    assert main(["--update-site", "--no-api"]) == 1
+    assert public.read_text() == "previous"
+    make_pdf(tmp_path / "pdfs/a.pdf", ENTRANTS)
+    make_pdf(tmp_path / "pdfs/b.pdf", ENTRANTS)
+    assert main(["--update-site", "--no-api"]) == 1
+    assert public.read_text() == "previous"

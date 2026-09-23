@@ -1,6 +1,13 @@
 name: Publicar painel ELAS-TI
-# Publicação deliberada: execução manual após habilitar Pages / GitHub Actions.
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'src/elas_ti/public_schema.py'
+      - 'scripts/check_publication.py'
+      - 'scripts/validate_public_data.py'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
   contents: read

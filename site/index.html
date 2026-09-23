@@ -16,7 +16,7 @@
     <section class="intro">
       <p class="eyebrow">UEG · UNIDADE UNIVERSITÁRIA DE GOIANÉSIA</p>
       <h1>Participação feminina em TI</h1>
-      <p>Ingresso e conclusão por curso e período. Dados extraídos de documentos institucionais, apresentados sem identificação nominal de estudantes.</p>
+      <p>Ingresso e conclusão no curso de Sistemas de Informação da Universidade Estadual de Goiás, Unidade Universitária de Goianésia (UEG/UnU Goianésia). Resultados agregados, sem identificação nominal de estudantes.</p>
       <p class="stamp" id="updated">Carregando a análise…</p>
     </section>
     <section id="painel" aria-labelledby="panel-title">
@@ -48,7 +48,7 @@
     <section id="metodo" class="method">
       <div class="section-heading"><h2>Método e limitações</h2></div>
       <div class="method-grid">
-        <article><h3>Fonte e processamento</h3><p>Os registros são extraídos de relatórios institucionais de ingresso e conclusão. PDFs, nomes e registros individuais permanecem no ambiente local. O site contém apenas dados agregados por curso e período.</p></article>
+        <article><h3>Fonte e processamento</h3><p>Os registros são extraídos de relatórios institucionais de ingresso e conclusão disponibilizados pela Secretaria da UEG/UnU Goianésia. PDFs, nomes e registros individuais permanecem no ambiente local. O site contém apenas dados agregados por curso e período.</p></article>
         <article><h3>Inferência de gênero</h3><p>O software utiliza o <a href="https://genderize.io" rel="noopener">Genderize.io</a>, com contexto brasileiro, para obter probabilidades a partir dos nomes. As categorias feminina e masculina são estimativas do modelo, não informações autodeclaradas. Resultados sem inferência permanecem não identificados.</p></article>
         <article><h3>Cálculo dos percentuais</h3><p>A quantidade feminina esperada é a soma das probabilidades femininas. O percentual divide essa soma pelo total de registros com inferência. A cobertura informa a proporção de registros com inferência em relação ao total analisado.</p></article>
         <article><h3>Incerteza e interpretação</h3><p>O intervalo probabilístico de 95% usa a distribuição Poisson-binomial, sob independência entre registros. Não é um intervalo de confiança amostral. A inferência pode apresentar vieses e não representa toda a diversidade de gênero. Ingresso e conclusão no mesmo período não constituem uma coorte; sua comparação não mede evasão.</p></article>
@@ -56,7 +56,7 @@
       <p class="muted">Períodos sem documentos não equivalem a zero. Os agregados incluem grupos pequenos; ausência de nomes não garante anonimato absoluto.</p>
     </section>
   </main>
-  <footer><div class="brand">ELAS<span>–</span>TI</div><p>Vitória Maria Diniz e Natan S. Rodrigues<br>Grupo de pesquisa ANDSol/UEG · Universidade Estadual de Goiás</p><p>Software livre · GPL-3.0-or-later</p></footer>
+  <footer><div class="brand">ELAS<span>–</span>TI</div><p>Vitória Maria Diniz e Natan S. Rodrigues<br>Grupo de pesquisa ANDSol/UEG · Universidade Estadual de Goiás</p><p><a href="https://github.com/natansr/elas-ti">Código e documentação</a><br>Software livre · GPL-3.0-or-later</p></footer>
   <dialog id="help-dialog" aria-labelledby="help-title" aria-describedby="help-text">
     <div class="help-heading"><h2 id="help-title">Ajuda</h2><form method="dialog"><button class="close-help" aria-label="Fechar ajuda">Fechar ×</button></form></div>
     <p id="help-text"></p>

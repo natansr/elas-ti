@@ -27,6 +27,11 @@ def main(argv=None):
         action="store_true",
         help="Exportar snapshot local como JSON/CSV agregados para o site, sem API",
     )
+    modes.add_argument(
+        "--update-site",
+        action="store_true",
+        help="Extrair PDFs/7z, analisar e atualizar os agregados do site em uma execução",
+    )
     modes.add_argument("--validate", action="store_true", help="Validar PDFs sem API")
     modes.add_argument(
         "--rebuild-reports",
@@ -61,7 +66,18 @@ def main(argv=None):
             from elas_ti.plot_menu import run_menu
 
             return run_menu(args.output_dir)
-        return run(args, config)
+        if args.update_site and not any(
+            p.is_file() and p.suffix.lower() in {".pdf", ".7z"}
+            for p in args.pdf_root.rglob("*")
+        ):
+            print("Nenhum PDF ou 7z disponível; os dados do site foram preservados.")
+            return 1
+        result = run(args, config)
+        if result == 0 and args.update_site:
+            from elas_ti.public_export import export_site
+
+            return export_site(args.output_dir, args.site_data_dir)
+        return result
     except (GenderizeError, ArchiveInputError) as error:
         print(str(error), file=sys.stderr)
         return 2

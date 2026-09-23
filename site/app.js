@@ -74,7 +74,7 @@ async function init() {
     rows = data.rows;
     const courses = [...new Set(rows.map(r=>r.curso))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
     options($('course'),courses,'Todos os cursos');
-    $('updated').textContent = `Análise de ${new Date(data.analysis_at).toLocaleString('pt-BR')} · Fonte: relatórios institucionais`;
+    $('updated').textContent = `Análise de ${new Date(data.analysis_at).toLocaleString('pt-BR')} · Fonte: UEG/UnU Goianésia`;
     ['course','kind','grain'].forEach(id=>$(id).addEventListener('change',updatePeriods));
     ['from','to','chart-type'].forEach(id=>$(id).addEventListener('change',render));
     updatePeriods();
