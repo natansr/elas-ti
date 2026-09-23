@@ -11,16 +11,15 @@
 </head>
 <body>
   <a class="skip" href="#painel">Ir para os resultados</a>
-  <header class="topbar"><a class="brand" href="./">ELAS<span>–</span>TI</a><span>ANDSol / UEG</span><a href="#metodo">Método</a></header>
+  <header class="institution">
+    <div class="institution-mark" id="institution-mark"><strong>Universidade Estadual de Goiás</strong><span>Unidade Universitária de Goianésia</span></div>
+    <div class="project-title"><h1>ELAS-TI</h1><p>Participação feminina em Sistemas de Informação</p></div>
+    <nav aria-label="Navegação"><a href="#metodo">Método</a><a href="https://github.com/natansr/elas-ti">Código</a></nav>
+  </header>
   <main>
-    <section class="intro">
-      <p class="eyebrow">UEG · UNIDADE UNIVERSITÁRIA DE GOIANÉSIA</p>
-      <h1>Participação feminina em TI</h1>
-      <p>Ingresso e conclusão no curso de Sistemas de Informação da Universidade Estadual de Goiás, Unidade Universitária de Goianésia (UEG/UnU Goianésia). Resultados agregados, sem identificação nominal de estudantes.</p>
-      <p class="stamp" id="updated">Carregando a análise…</p>
-    </section>
-    <section id="painel" aria-labelledby="panel-title">
-      <div class="section-heading"><h2 id="panel-title">Resultados</h2></div>
+    <div class="dataset-heading"><div><h2>Painel de resultados</h2><p>Dados institucionais da UEG/UnU Goianésia · Ingresso e conclusão</p></div><p id="updated" class="stamp">Carregando a análise…</p></div>
+    <div class="workspace">
+      <aside class="filter-panel" aria-labelledby="filter-title"><h2 id="filter-title">Filtros</h2>
       <div class="filters">
         <div class="field"><div class="label-row"><label for="course">Curso</label><button type="button" class="help" data-help="course" aria-label="Ajuda: Curso" aria-haspopup="dialog">?</button></div><select id="course"></select></div>
         <div class="field"><div class="label-row"><label for="kind">Registros</label><button type="button" class="help" data-help="kind" aria-label="Ajuda: Registros" aria-haspopup="dialog">?</button></div><select id="kind"><option value="ingressante">Ingressantes</option><option value="concluinte">Concluintes</option></select></div>
@@ -28,25 +27,28 @@
         <div class="field"><div class="label-row"><label for="from">De</label><button type="button" class="help" data-help="from" aria-label="Ajuda: De" aria-haspopup="dialog">?</button></div><select id="from"></select></div>
         <div class="field"><div class="label-row"><label for="to">Até</label><button type="button" class="help" data-help="to" aria-label="Ajuda: Até" aria-haspopup="dialog">?</button></div><select id="to"></select></div>
       </div>
-      <p id="status" role="status" aria-live="polite"></p>
+        <p class="filter-note">Os filtros se aplicam aos indicadores, ao gráfico e à tabela. A ajuda “?” descreve cada medida.</p>
+      </aside>
+      <section id="painel" aria-label="Resultados selecionados">
       <div class="cards" aria-live="polite">
         <article><div class="label-row"><span>Total de registros</span><button type="button" class="help" data-help="total" aria-label="Ajuda: Total de registros" aria-haspopup="dialog">?</button></div><strong id="total">—</strong><small>No período selecionado</small></article>
         <article><div class="label-row"><span>Participação feminina</span><button type="button" class="help" data-help="female" aria-label="Ajuda: Participação feminina" aria-haspopup="dialog">?</button></div><strong id="female">—</strong><small>Estimativa entre registros com inferência</small></article>
         <article><div class="label-row"><span>Cobertura da inferência</span><button type="button" class="help" data-help="coverage" aria-label="Ajuda: Cobertura da inferência" aria-haspopup="dialog">?</button></div><strong id="coverage">—</strong><small id="resolved">—</small></article>
         <article><div class="label-row"><span>Não identificados</span><button type="button" class="help" data-help="unknown" aria-label="Ajuda: Não identificados" aria-haspopup="dialog">?</button></div><strong id="unknown">—</strong><small>Sem estimativa de gênero</small></article>
       </div>
+        <p id="status" role="status" aria-live="polite"></p>
       <div class="chart-panel">
-        <div class="chart-heading"><div><h3 id="chart-title">Registros ao longo do tempo</h3></div><div class="field"><div class="label-row"><label for="chart-type">Tipo de gráfico</label><button type="button" class="help" data-help="chart-type" aria-label="Ajuda: Tipo de gráfico" aria-haspopup="dialog">?</button></div><select id="chart-type"><option value="counts">Total de registros</option><option value="bars">Barras: feminina e masculina</option><option value="line">Linha: participação feminina</option><option value="pie">Pizza: composição estimada</option><option value="coverage">Cobertura da inferência</option></select></div></div>
+        <div class="chart-heading"><div><h3 id="chart-title">Registros ao longo do tempo</h3></div><div class="field"><div class="label-row"><label for="chart-type">Tipo de gráfico</label><button type="button" class="help" data-help="chart-type" aria-label="Ajuda: Tipo de gráfico" aria-haspopup="dialog">?</button></div><select id="chart-type"><option value="counts">Total de registros</option><option value="bars" selected>Barras: feminina e masculina</option><option value="line">Linha: participação feminina</option><option value="pie">Pizza: composição estimada</option><option value="coverage">Cobertura da inferência</option></select></div></div>
         <p id="chart-note" class="muted"></p>
         <div id="chart" aria-label="Gráfico dos resultados selecionados"></div>
         <p class="chart-foot" id="chart-foot">Fonte: documentos institucionais.</p>
       </div>
       <details class="table-panel"><summary>Tabela dos resultados selecionados</summary><div class="table-scroll"><table><caption>Quantidades feminina e masculina são esperadas e podem ser fracionárias. Traço significa inferência indisponível.</caption><thead><tr><th scope="col">Período</th><th scope="col">Total</th><th scope="col">Com inferência</th><th scope="col">Não identificados</th><th scope="col">Feminina (estimada)</th><th scope="col">Masculina (estimada)</th><th scope="col">Feminina (%)</th><th scope="col">Cobertura (%)</th></tr></thead><tbody id="rows"></tbody></table></div></details>
-      <div class="downloads"><div class="label-row"><span>Dados agregados</span><button type="button" class="help" data-help="downloads" aria-label="Ajuda: Downloads" aria-haspopup="dialog">?</button></div><a href="data/resumo.csv" download>Baixar CSV ↓</a><a href="data/resumo.json" download>Baixar JSON ↓</a></div>
+      <div class="downloads"><div class="label-row"><span>Download dos dados</span><button type="button" class="help" data-help="downloads" aria-label="Ajuda: Downloads" aria-haspopup="dialog">?</button></div><a href="data/resumo.csv" download>CSV</a><a href="data/resumo.json" download>JSON</a></div>
       <p class="muted">Os arquivos incluem todos os períodos e cursos, independentemente dos filtros.</p>
-    </section>
-    <section id="metodo" class="method">
-      <div class="section-heading"><h2>Método e limitações</h2></div>
+      </section>
+    </div>
+    <details id="metodo" class="method"><summary>Método e limitações</summary>
       <div class="method-grid">
         <article><h3>Fonte e processamento</h3><p>Os registros são extraídos de relatórios de ingresso e conclusão da Secretaria Acadêmica da UEG/UnU Goianésia. A extração é local; os nomes consultados são enviados ao Genderize.io. PDFs e registros individuais não são publicados. O site contém apenas dados agregados por curso e período.</p></article>
         <article><h3>Inferência de gênero</h3><p>O software utiliza o <a href="https://genderize.io" rel="noopener">Genderize.io</a>, com contexto brasileiro, para obter probabilidades a partir dos nomes. As categorias feminina e masculina são estimativas do modelo, não informações autodeclaradas. Resultados sem inferência permanecem não identificados.</p></article>
@@ -54,9 +56,9 @@
         <article><h3>Incerteza e interpretação</h3><p>O intervalo probabilístico de 95% usa a distribuição Poisson-binomial, sob independência entre registros. Não é um intervalo de confiança amostral e não incorpora todos os vieses ou erros de calibração do serviço. A inferência pode apresentar vieses e não representa toda a diversidade de gênero. Ingresso e conclusão no mesmo período não constituem uma coorte; sua comparação não mede evasão.</p></article>
       </div>
       <p class="muted">Períodos sem documentos não equivalem a zero. Os agregados incluem grupos pequenos; ausência de nomes não garante anonimato absoluto.</p>
-    </section>
+    </details>
   </main>
-  <footer><div class="brand">ELAS<span>–</span>TI</div><p>Vitória Maria Diniz e Natan S. Rodrigues<br>Grupo de pesquisa ANDSol/UEG · Universidade Estadual de Goiás</p><p><a href="https://github.com/natansr/elas-ti">Código e documentação</a><br>Software livre · GPL-3.0-or-later</p></footer>
+  <footer><p><strong>ANDSol/UEG</strong><br>Vitória Maria Diniz e Natan S. Rodrigues</p><p>Dados: Secretaria Acadêmica da UEG/UnU Goianésia<br>Inferência probabilística: <a href="https://genderize.io">Genderize.io</a></p><p><a href="https://github.com/natansr/elas-ti">Código e documentação</a><br>Software livre · GPL-3.0-or-later</p></footer>
   <dialog id="help-dialog" aria-labelledby="help-title" aria-describedby="help-text">
     <div class="help-heading"><h2 id="help-title">Ajuda</h2><form method="dialog"><button class="close-help" aria-label="Fechar ajuda">Fechar ×</button></form></div>
     <p id="help-text"></p>

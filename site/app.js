@@ -3,7 +3,7 @@
 const $ = id => document.getElementById(id);
 const number = value => value == null ? '—' : new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(value);
 const percent = value => value == null ? '—' : `${number(value)}%`;
-const palette = {female: '#7751a8', male: '#337bad', total: '#18584d'};
+const palette = {female: '#7751a8', male: '#337bad', total: '#49456d'};
 let rows = [];
 function options(element, values, current) {
   element.replaceChildren(...values.map(value => new Option(value, value)));
@@ -104,5 +104,8 @@ document.querySelectorAll('[data-help]').forEach(button => {
     $('help-text').textContent = description;
     $('help-dialog').showModal();
   });
+});
+document.querySelector('a[href="#metodo"]').addEventListener('click', () => {
+  $('metodo').open = true;
 });
 init();
