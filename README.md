@@ -1,76 +1,85 @@
 # ELAS-TI
 
-Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação
+Software em Python para análise da participação feminina entre ingressantes e concluintes de cursos de Tecnologia da Informação. Desenvolvido por **Vitória Maria Diniz e Natan S. Rodrigues**, no grupo de pesquisa **ANDSol/UEG**.
 
-O ELAS-TI é um software de apoio à pesquisa desenvolvido pelo grupo de pesquisa ANDSol/UEG, na Universidade Estadual de Goiás, Unidade Universitária de Goianésia. Seu objetivo é analisar a participação feminina entre ingressantes e concluintes de cursos de TI a partir de relatórios institucionais em PDF.
-
-O processamento reúne extração e validação dos registros, identificação de repetições, análise estatística e acompanhamento de coortes. A inferência probabilística de gênero utiliza o [Genderize.io](https://genderize.io), com contexto brasileiro. As estimativas são baseadas nos nomes e não correspondem a gênero autodeclarado.
-
-A extração e a análise funcionam localmente, pelo terminal. O projeto mantém os gráficos Matplotlib e inclui um painel interativo com Plotly.js, preparado para GitHub Pages. O painel recebe somente estatísticas agregadas em JSON e CSV; os PDFs e os registros individuais ficam no computador.
-
-[Painel público — UEG/UnU Goianésia](https://natansr.github.io/elas-ti/)
+O [painel público](https://natansr.github.io/elas-ti/) apresenta os resultados do curso de Sistemas de Informação da **UEG/UnU Goianésia**, com dados fornecidos pela Secretaria Acadêmica da unidade. Há filtros, gráficos interativos, ajuda “?” e downloads em CSV e JSON.
 
 ## Instalação
 
-O projeto requer Python 3.11 ou superior. A preparação do ambiente e a instalação das dependências são feitas na pasta do repositório:
+Python 3.11 ou superior, na pasta do projeto:
 
 ```sh
 python -m venv .venv
 ```
 
-A ativação do ambiente depende do sistema operacional:
+Ativação do ambiente:
 
 ```sh
 # Linux e macOS
 source .venv/bin/activate
 
-# Windows
-.venv\Scripts\activate
+# Windows — Prompt de Comando
+.venv\Scripts\activate.bat
 ```
 
 ```sh
 pip install -r requirements.txt
 ```
 
-Cada pessoa utiliza sua própria chave, obtida na [conta do Genderize.io](https://genderize.io/register). A chave do Genderize.io é configurada na variável `GENDERIZE_API_KEY`, em um arquivo `.env` local baseado em `.env.example`. A modalidade com API envia os nomes consultados ao serviço; os PDFs permanecem no computador. O processamento sem API utiliza somente os resultados já armazenados no cache.
+Cada pessoa utiliza sua própria [chave do Genderize.io](https://genderize.io/register), no arquivo local `.env`:
 
-## Execução
+```dotenv
+GENDERIZE_API_KEY=sua_chave
+```
 
-Os documentos de entrada, em PDF ou `.7z`, ficam em `pdfs/ingressantes/` e `pdfs/formandos/`. Curso, período e tipo de registro são identificados pelo conteúdo dos relatórios.
+O `.env` é ignorado pelo Git. A consulta envia os nomes ao Genderize.io; os PDFs permanecem no computador. Nenhuma chave é incluída no painel.
 
-| Comando | Finalidade |
+## Documentos e execução
+
+| Pasta local | Conteúdo |
 |---|---|
-| `python main.py --dry-run` | Extração e validação dos PDFs, sem consulta à API. |
-| `python main.py` | Análise completa, com consulta ao Genderize.io para nomes ausentes do cache. |
-| `python main.py --no-api` | Análise com o cache local; registros sem inferência permanecem não identificados. |
-| `python main.py --update-site` | Extração, análise e exportação para o site em um único comando. |
-| `python main.py --export-site` | Exportação da última análise para `site/data/resumo.json` e `resumo.csv`, sem consulta à API. |
-| `python main.py --graphs` | Menu de seleção e exportação dos gráficos da última análise salva. |
-| `python main.py --rebuild-reports` | Reconstrução dos relatórios a partir dos dados salvos localmente. |
+| `pdfs/ingressantes/` | PDFs ou `.7z` de ingressantes. |
+| `pdfs/formandos/` | PDFs ou `.7z` de concluintes. |
 
-A validação registra totais, duplicações e divergências em `output/reports/validacao_pdfs.txt`. Problemas estruturais de extração interrompem a análise. PDFs sem texto pesquisável ou com layouts não reconhecidos precisam de revisão; o programa não realiza OCR.
+Todo o conteúdo dessas pastas fica fora do Git, exceto os marcadores vazios `.gitkeep`. Os `.7z` são descompactados automaticamente em uma pasta temporária privada, removida após a leitura. Os originais são preservados.
 
-As configurações de cursos, inferência e acompanhamento ficam em `config.py`. As opções `--pdf-root` e `--output-dir` permitem alterar as pastas de entrada e saída. A lista completa está disponível em `python main.py --help`.
-
-## Painel interativo
-
-Os PDFs de ingresso ficam em **`pdfs/ingressantes/`** e os de conclusão em **`pdfs/formandos/`**. As pastas aceitam PDFs avulsos e arquivos `.7z`, inclusive com subpastas internas. Todo o conteúdo de entrada fica fora do Git; apenas os marcadores vazios de pasta são versionados.
-
-A descompactação é automática e local. Somente PDFs são extraídos para uma pasta temporária dentro de `output/`, removida ao terminar a leitura, inclusive em caso de erro. Os originais permanecem intactos. PDFs idênticos encontrados nos compactados são processados uma única vez, mesmo quando já existem avulsos. Relatórios parcialmente sobrepostos continuam exigindo revisão. Arquivos com senha, corrompidos, sem PDFs ou maiores que 1 GiB descompactados interrompem a execução com uma mensagem, sem publicar dados. Compactados dentro de outros compactados não são abertos.
-
-A extração, a análise e a exportação pública são executadas na raiz do projeto:
+A execução completa extrai os registros, consulta o Genderize.io quando necessário, calcula as estatísticas e atualiza os arquivos do painel:
 
 ```sh
 python main.py --update-site
 ```
 
-Sem consulta ao Genderize.io, o processamento utiliza apenas o cache disponível:
+| Comando | Finalidade |
+|---|---|
+| `python main.py --dry-run` | Validar a extração, sem API. |
+| `python main.py --update-site --no-api` | Processar somente com as inferências existentes no cache. |
+| `python main.py --export-site` | Exportar a última análise salva, sem reler documentos. |
+| `python main.py --graphs` | Abrir o menu local de gráficos Matplotlib. |
+| `python main.py --rebuild-reports` | Reconstruir os relatórios locais da análise salva. |
 
-```sh
-python main.py --update-site --no-api
-```
+O relatório de validação fica em `output/reports/validacao_pdfs.txt`. Falhas estruturais interrompem a análise. O programa exige PDFs com texto pesquisável no layout suportado e não realiza OCR. Configurações ficam em `config.py`; demais opções, em `python main.py --help`.
 
-Sem inferências no cache, o painel apresenta as contagens documentais e os registros não identificados. Os percentuais de gênero ficam indisponíveis. A exportação usa a última análise salva: novos PDFs precisam passar novamente pelo processamento.
+## Interpretação dos resultados
+
+O [Genderize.io](https://genderize.io) fornece uma categoria e uma probabilidade associada ao nome, com contexto brasileiro. O ELAS-TI utiliza essa probabilidade como parâmetro do modelo; **não se trata de gênero autodeclarado nem de classificação confirmada**.
+
+Para cada registro, a probabilidade feminina `q` é `p` quando a resposta é `female`, e `1 − p` quando é `male`. Por exemplo, uma resposta masculina com `p = 0,95` contribui com `0,05` para a quantidade feminina esperada.
+
+| Medida | Cálculo |
+|---|---|
+| Quantidade feminina esperada | Soma de `q` nos registros com inferência. |
+| Quantidade masculina esperada | Número de registros com inferência menos a soma de `q`. |
+| Participação feminina (%) | `100 × soma(q) / registros com inferência`. |
+| Cobertura (%) | `100 × registros com inferência / total de registros`. |
+| Intervalo probabilístico de 95% | Quantis de 2,5% e 97,5% da distribuição Poisson-binomial, sob independência. |
+
+Quantidades esperadas podem ser fracionárias. Registros sem inferência entram no total, mas ficam fora dos percentuais de gênero. **Cobertura de 100% não significa 100% de acerto.** O intervalo depende do modelo, não é um intervalo de confiança amostral e não incorpora todos os erros ou vieses do serviço.
+
+Ingresso e conclusão abrangem grupos e períodos distintos. Diferenças entre seus percentuais são descritivas e não medem evasão, probabilidade de conclusão ou significância estatística. Fórmulas, resultados da execução e limitações estão em [Método e resultados](docs/METODOLOGIA.md).
+
+## Painel e reprodução
+
+Os arquivos públicos `site/data/resumo.json` e `resumo.csv` contêm os mesmos agregados. Há recortes por curso, ano e semestre: somar recortes sobrepostos duplica os totais. Campos vazios no CSV e `null` no JSON indicam indisponibilidade.
 
 A prévia local fica em `http://localhost:8000` após:
 
@@ -78,65 +87,11 @@ A prévia local fica em `http://localhost:8000` após:
 python -m http.server 8000 --bind 127.0.0.1 --directory site
 ```
 
-O painel oferece filtros por curso, tipo de registro e período, com agrupamento anual ou semestral. Inclui contagens, barras feminina/masculina, linha da participação feminina com intervalo probabilístico, pizza, cobertura, tabela e downloads. O Plotly.js é carregado de um CDN; sem conexão, a tabela e os dados continuam disponíveis no servidor local.
+O painel pode ser consultado sem PDFs ou chave de API. Uma nova extração requer documentos próprios; novas inferências requerem uma chave pessoal. O serviço pode retornar probabilidades diferentes em consultas futuras.
 
-Os arquivos `site/data/resumo.json` e `site/data/resumo.csv` contêm os mesmos agregados, incluindo grupos pequenos, sem nomes, identificadores individuais ou referências aos PDFs. Há linhas por curso e para todos os cursos, anuais e semestrais: esses recortes são alternativos e não devem ser somados entre si. Percentuais usam registros resolvidos; `null` no JSON e campo vazio no CSV significam indisponibilidade, não zero.
+O push de alterações em `site/` para a `main` publica o painel via GitHub Actions. Apenas `site/` é enviada ao Pages. PDFs, `.7z`, `.env`, cache e `output/` permanecem locais. O site publica números agregados, inclusive de grupos pequenos, sem nomes ou identificadores individuais; isso não garante anonimato absoluto.
 
-### GitHub Pages
-
-A pasta `site/` é a única incluída na publicação. Em **Settings → Pages**, a origem é **GitHub Actions**. Após o commit e push de alterações no site ou nos agregados para a `main`, o workflow valida os arquivos e publica automaticamente a página. Também há execução manual em **Actions → Publicar painel ELAS-TI → Run workflow**. O workflow não executa a extração nem recebe PDFs ou chave de API.
-
-O site é destinado a acesso público. Pages em repositórios privados depende do plano da conta; a configuração não altera a visibilidade do repositório. [Documentação do GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
-
-### Reprodução
-
-O código e os agregados são distribuídos sem os documentos institucionais. A comunidade pode consultar os mesmos gráficos a partir de `site/data/`, sem chave de API ou PDFs. Uma nova extração requer documentos próprios no layout suportado; inferências novas requerem uma chave pessoal do Genderize.io. Os dados desta análise provêm da Secretaria da **UEG/UnU Goianésia**, curso de Sistemas de Informação. A execução depende dos documentos e das respostas do serviço, que podem variar entre consultas.
-
-## Gráficos e resultados locais
-
-O menu oferece filtros de curso e período, com análises de ingresso e conclusão. Estão disponíveis gráficos de contagem, participação feminina, cobertura da inferência, comparação entre ingresso e conclusão, correspondências por coorte e tempo até conclusão.
-
-A composição feminina e masculina pode ser apresentada em pizza, para o período selecionado, ou em barras comparativas por ano. Esses percentuais consideram apenas os registros com inferência disponível. A cobertura é indicada nos gráficos, e a ausência de informação não é interpretada como participação masculina. O gráfico de participação feminina também apresenta o intervalo probabilístico de incerteza; a pizza mostra somente as estimativas centrais.
-
-| Pasta | Conteúdo |
-|---|---|
-| `output/csv/` | Resumos estatísticos, comparações e análises de coortes. |
-| `output/reports/` | Relatório da análise e auditoria da extração. |
-| `output/figures/` | Gráficos exportados. |
-
-O menu utiliza a última análise salva e não faz consultas à API. Novos documentos ou novas inferências são incorporados após uma nova execução da análise.
-
-## Método e métricas
-
-As análises são calculadas separadamente para ingressantes e concluintes, por curso, ano e semestre. Na tabela abaixo, **N** representa o total de registros, **R** os registros com inferência e **U = N − R** os não identificados. A probabilidade feminina **q** corresponde a `p` quando a resposta da API é `female` e a `1 − p` quando é `male`.
-
-| Métrica | Definição |
-|---|---|
-| Cobertura | `R / N`: proporção dos registros com inferência disponível. |
-| Quantidades esperadas | Mulheres: `Σq`; homens: `R − Σq`. São estimativas e podem ser fracionárias. |
-| Participação estimada | Quantidade esperada dividida por **R**, multiplicada por 100. |
-| Variância e desvio padrão | `Σq(1 − q)` e sua raiz quadrada, para a contagem feminina. |
-| Intervalo probabilístico de 95% | Quantis de 2,5% e 97,5% da distribuição Poisson-binomial exata, sob independência entre registros. |
-| Limites com não identificados | Contagem: `[quantil inferior, quantil superior + U]`. Expectativa percentual no total: `[Σq/N, (Σq+U)/N] × 100`. |
-| Variação temporal | Diferença em pontos percentuais entre períodos disponíveis, sem preencher períodos ausentes. |
-
-Por exemplo, 40 registros, dos quais 30 têm inferência, com quantidade feminina esperada de 12, resultam em cobertura de 75% e participação feminina estimada de 40% entre os registros resolvidos.
-
-O intervalo probabilístico depende das hipóteses do modelo e não é um intervalo de confiança amostral clássico. As probabilidades do Genderize.io estão sujeitas a vieses e erros de calibração; seu modelo binário não representa a diversidade das identidades de gênero.
-
-As coortes são definidas pelo curso e período de ingresso. Uma correspondência exige nome normalizado e curso iguais, conclusão posterior e vínculo único nos dois sentidos. A proporção resultante expressa ingressantes reencontrados nas listas de conclusão disponíveis, não uma taxa oficial de conclusão. Documentos ausentes, homônimos e mudanças de nome ou curso limitam essa interpretação.
-
-## Tratamento dos dados
-
-As saídas não incluem CSVs individuais nem nomes de estudantes. O snapshot local preserva os dados necessários à reconstrução das análises com identificadores aleatórios, sem nomes ou números de sequência. O cache armazena índices HMAC e respostas sem nomes em texto claro. Esses arquivos são pseudonimizados e continuam sendo dados de acesso restrito.
-
-Por padrão, gráficos e resumos **locais** suprimem grupos menores que cinco e estimativas com poucos registros resolvidos. A auditoria local mantém as contagens necessárias à validação. Essas medidas reduzem a exposição, mas não garantem anonimato, sobretudo em grupos pequenos ou no cruzamento de resultados.
-
-PDFs, credenciais, cache, chaves e a pasta `output/` são ignorados pelo Git. A exportação pública é separada: publica números agregados sem supressão por tamanho de grupo, conforme o escopo do projeto. Isso remove a identificação nominal, mas não garante anonimato absoluto. O único CSV permitido no versionamento é `site/data/resumo.csv`, validado junto ao JSON.
-
-## Desenvolvimento
-
-O código está em `src/elas_ti/` e os testes em `tests/`.
+## Verificação e licença
 
 ```sh
 pytest
@@ -144,14 +99,6 @@ python scripts/check_publication.py --history
 python scripts/validate_public_data.py
 ```
 
-A suíte bloqueia chamadas reais à API. Os testes de integração com documentos institucionais são executados apenas quando os PDFs estão disponíveis localmente. O GitHub Actions executa os testes e a verificação preventiva de arquivos privados e possíveis credenciais no histórico. Essa verificação não substitui a revisão dos materiais antes da publicação.
+Os testes utilizam dados sintéticos e bloqueiam chamadas reais à API. A verificação do Git busca arquivos privados e possíveis credenciais, sem substituir a revisão do material publicado.
 
-## Autoria
-
-Vitória Maria Diniz e Natan S. Rodrigues. Projeto desenvolvido pelo grupo de pesquisa **ANDSol/UEG**.
-
-## Licença
-
-O ELAS-TI é distribuído sob os termos da GNU General Public License, versão 3 ou posterior (`GPL-3.0-or-later`). O texto completo está em [LICENSE](LICENSE).
-
-Copyright (C) 2026 Vitória Maria Diniz e Natan S. Rodrigues.
+Licença [GNU GPL versão 3 ou posterior](LICENSE) (`GPL-3.0-or-later`). Copyright (C) 2026 Vitória Maria Diniz e Natan S. Rodrigues.
