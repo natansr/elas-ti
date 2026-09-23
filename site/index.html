@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ELAS-TI: participação feminina estimada no ingresso e na conclusão de cursos de Tecnologia da Informação. Pesquisa ANDSol/UEG.">
+  <title>ELAS-TI · Participação feminina em TI</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#painel">Ir para os resultados</a>
+  <header class="topbar"><a class="brand" href="./">ELAS<span>–</span>TI</a><span>ANDSol / UEG</span><a href="#metodo">Sobre os dados ↗</a></header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">FORMAÇÃO EM TECNOLOGIA · DADOS ABERTOS</p>
+      <h1>A participação feminina,<br>ao longo dos anos.</h1>
+      <p>Um olhar sobre o ingresso e a conclusão de cursos de Tecnologia da Informação. Resultados agregados de documentos institucionais, sem identificação nominal de estudantes.</p>
+      <p class="stamp" id="updated">Carregando a análise…</p>
+    </section>
+    <section id="painel" aria-labelledby="panel-title">
+      <div class="section-heading"><h2 id="panel-title">Explore os resultados</h2><span>01 / PAINEL</span></div>
+      <div class="filters">
+        <label>Curso<select id="course"></select></label>
+        <label>Registros<select id="kind"><option value="ingressante">Ingressantes</option><option value="concluinte">Concluintes</option></select></label>
+        <label>Agrupamento<select id="grain"><option value="ano">Por ano</option><option value="semestre">Por semestre</option></select></label>
+        <label>De<select id="from"></select></label>
+        <label>Até<select id="to"></select></label>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+      <div class="cards" aria-live="polite">
+        <article><span>Registros no recorte</span><strong id="total">—</strong><small>Contagem documental</small></article>
+        <article><span>Participação feminina</span><strong id="female">—</strong><small>Entre registros com inferência</small></article>
+        <article><span>Cobertura da inferência</span><strong id="coverage">—</strong><small id="resolved">—</small></article>
+        <article><span>Não identificados</span><strong id="unknown">—</strong><small>Sem estimativa de gênero</small></article>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-heading"><div><p class="eyebrow">VISUALIZAÇÃO</p><h3 id="chart-title">Registros ao longo do tempo</h3></div><label>Tipo de gráfico<select id="chart-type"><option value="counts">Total de registros</option><option value="bars">Barras: feminina e masculina</option><option value="line">Linha: participação feminina</option><option value="pie">Pizza: composição estimada</option><option value="coverage">Cobertura da inferência</option></select></label></div>
+        <p id="chart-note" class="muted"></p>
+        <div id="chart" aria-label="Gráfico dos resultados selecionados"></div>
+        <p class="chart-foot">Estimativas probabilísticas · Genderize.io · Os valores também estão disponíveis na tabela abaixo.</p>
+      </div>
+      <details class="table-panel"><summary>Tabela dos resultados selecionados</summary><div class="table-scroll"><table><caption>Quantidades feminina e masculina são esperadas e podem ser fracionárias. Traço significa inferência indisponível.</caption><thead><tr><th scope="col">Período</th><th scope="col">Total</th><th scope="col">Resolvidos</th><th scope="col">Não identificados</th><th scope="col">Feminina (estimada)</th><th scope="col">Masculina (estimada)</th><th scope="col">Feminina (%)</th><th scope="col">Cobertura (%)</th></tr></thead><tbody id="rows"></tbody></table></div></details>
+      <div class="downloads"><span>Dados agregados completos</span><a href="data/resumo.csv" download>Baixar CSV ↓</a><a href="data/resumo.json" download>Baixar JSON ↓</a></div>
+      <p class="muted">Os downloads incluem todos os cursos e períodos, com linhas anuais e semestrais. São recortes alternativos: somá-los entre si duplica os totais.</p>
+    </section>
+    <section id="metodo" class="method">
+      <div class="section-heading"><h2>Como ler esta análise</h2><span>02 / MÉTODO</span></div>
+      <div class="method-grid">
+        <article><span class="number">01</span><h3>Documentos, depois números</h3><p>O script Python extrai e valida os PDFs localmente. Esta página recebe apenas totais e estatísticas por curso e período. PDFs, nomes, matrículas e registros individuais não integram os arquivos públicos.</p></article>
+        <article><span class="number">02</span><h3>Estimativa, não autodeclaração</h3><p>O <a href="https://genderize.io" rel="noopener">Genderize.io</a> estima probabilidades a partir de nomes. A quantidade feminina esperada é a soma das probabilidades femininas; a masculina é o número de resolvidos menos essa soma. O modelo binário não representa toda a diversidade de gênero.</p></article>
+        <article><span class="number">03</span><h3>O denominador importa</h3><p>Os percentuais feminina e masculina consideram somente registros com inferência. A cobertura é a proporção desses registros no total. Não identificados não são classificados como masculinos. A pizza combina quantidades esperadas, sem fazer média simples dos percentuais.</p></article>
+        <article><span class="number">04</span><h3>Limites da comparação</h3><p>O intervalo probabilístico de 95% usa a distribuição Poisson-binomial e pressupõe independência. Não é um intervalo de confiança amostral. Ingressantes e concluintes de um mesmo período não são necessariamente as mesmas pessoas; a comparação não mede evasão ou taxa de conclusão.</p></article>
+      </div>
+      <p class="muted">Os números incluem grupos pequenos. Ausência de identificação nominal não garante anonimato absoluto. As séries representam os documentos processados; períodos ausentes não equivalem a zero. A inferência pode apresentar vieses e erros.</p>
+    </section>
+  </main>
+  <footer><div class="brand">ELAS<span>–</span>TI</div><p>Vitória Maria Diniz e Natan S. Rodrigues<br>Grupo de pesquisa ANDSol/UEG · Universidade Estadual de Goiás</p><p>Software livre · GPL-3.0-or-later</p></footer>
+  <noscript>O painel interativo requer JavaScript. Os resultados estão disponíveis nos arquivos CSV e JSON.</noscript>
+</body>
+</html>

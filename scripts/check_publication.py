@@ -1,9 +1,14 @@
 """Verificação preventiva de dados/credenciais versionados (não substitui revisão)."""
 
 import argparse
+import json
 import re
 import subprocess
-from pathlib import PurePosixPath
+import sys
+from pathlib import Path, PurePosixPath
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from elas_ti.public_schema import validate_csv, validate_data
 
 PATTERNS = [
     rb"gh[pousr]_[A-Za-z0-9]{20,}",
@@ -15,6 +20,8 @@ PATTERNS = [
 
 def blocked_path(path):
     p = PurePosixPath(path)
+    if path == "site/data/resumo.csv":
+        return False
     return (
         p.name.startswith(".env")
         and p.name != ".env.example"
@@ -45,6 +52,15 @@ def check(history=False):
     for path, blob in entries:
         if blocked_path(path):
             failures.add(f"Arquivo privado versionado: {path}")
+        if path in {"site/data/resumo.json", "site/data/resumo.csv"}:
+            try:
+                public = git("cat-file", "blob", blob).decode("utf-8-sig")
+                if path.endswith(".json"):
+                    validate_data(json.loads(public))
+                else:
+                    validate_csv(public)
+            except (ValueError, TypeError, KeyError):
+                failures.add(f"Exportação pública inválida: {path} ({blob[:12]})")
         if blob not in inspected:
             content = git("cat-file", "blob", blob)
             if any(re.search(pattern, content) for pattern in PATTERNS):

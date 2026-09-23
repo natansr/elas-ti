@@ -21,6 +21,11 @@ def main(argv=None):
     modes.add_argument(
         "--dry-run", action="store_true", help="Extrair e auditar sem API"
     )
+    modes.add_argument(
+        "--export-site",
+        action="store_true",
+        help="Exportar snapshot local como JSON/CSV agregados para o site, sem API",
+    )
     modes.add_argument("--validate", action="store_true", help="Validar PDFs sem API")
     modes.add_argument(
         "--rebuild-reports",
@@ -40,12 +45,17 @@ def main(argv=None):
     )
     parser.add_argument("--pdf-root", type=Path, default=Path("pdfs"))
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
+    parser.add_argument("--site-data-dir", type=Path, default=Path("site/data"))
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO)
     logging.getLogger("elas_ti").setLevel(
         logging.DEBUG if args.verbose else logging.INFO
     )
     try:
+        if args.export_site:
+            from elas_ti.public_export import export_site
+
+            return export_site(args.output_dir, args.site_data_dir)
         if args.graphs:
             from elas_ti.plot_menu import run_menu
 

@@ -22,7 +22,7 @@ def protect_output(output: Path):
     resolved = output.resolve()
     if resolved == project or any(
         resolved.is_relative_to(project / p)
-        for p in ("src", "tests", ".git", ".github")
+        for p in ("src", "tests", ".git", ".github", "site")
     ):
         raise ValueError("Diretório de saída reservado ao código")
     output.mkdir(parents=True, exist_ok=True)

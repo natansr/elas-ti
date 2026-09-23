@@ -6,7 +6,7 @@ O ELAS-TI é um software de apoio à pesquisa desenvolvido pelo grupo de pesquis
 
 O processamento reúne extração e validação dos registros, identificação de repetições, análise estatística e acompanhamento de coortes. A inferência probabilística de gênero utiliza o [Genderize.io](https://genderize.io), com contexto brasileiro. As estimativas são baseadas nos nomes e não correspondem a gênero autodeclarado.
 
-A aplicação funciona localmente, pelo terminal. Os gráficos são produzidos com Matplotlib e podem ser abertos em uma janela ou exportados em PNG, PDF e SVG.
+A extração e a análise funcionam localmente, pelo terminal. O projeto mantém os gráficos Matplotlib e inclui um painel interativo com Plotly.js, preparado para GitHub Pages. O painel recebe somente estatísticas agregadas em JSON e CSV; os PDFs e os registros individuais ficam no computador.
 
 ## Instalação
 
@@ -41,6 +41,7 @@ Os documentos de entrada ficam em `pdfs/ingressantes/` e `pdfs/formandos/`. Curs
 | `python main.py --dry-run` | Extração e validação dos PDFs, sem consulta à API. |
 | `python main.py` | Análise completa, com consulta ao Genderize.io para nomes ausentes do cache. |
 | `python main.py --no-api` | Análise com o cache local; registros sem inferência permanecem não identificados. |
+| `python main.py --export-site` | Exportação da última análise para `site/data/resumo.json` e `resumo.csv`, sem consulta à API. |
 | `python main.py --graphs` | Menu de seleção e exportação dos gráficos da última análise salva. |
 | `python main.py --rebuild-reports` | Reconstrução dos relatórios a partir dos dados salvos localmente. |
 
@@ -48,7 +49,41 @@ A validação registra totais, duplicações e divergências em `output/reports/
 
 As configurações de cursos, inferência e acompanhamento ficam em `config.py`. As opções `--pdf-root` e `--output-dir` permitem alterar as pastas de entrada e saída. A lista completa está disponível em `python main.py --help`.
 
-## Gráficos e resultados
+## Painel interativo
+
+Os PDFs de ingresso ficam em **`pdfs/ingressantes/`** e os de conclusão em **`pdfs/formandos/`**. As pastas já fazem parte da estrutura do projeto; os PDFs são ignorados pelo Git.
+
+A extração, a análise e a exportação pública são executadas na raiz do projeto:
+
+```sh
+python main.py && python main.py --export-site
+```
+
+Sem consulta ao Genderize.io, o processamento utiliza apenas o cache disponível:
+
+```sh
+python main.py --no-api && python main.py --export-site
+```
+
+Sem inferências no cache, o painel apresenta as contagens documentais e os registros não identificados. Os percentuais de gênero ficam indisponíveis. A exportação usa a última análise salva: novos PDFs precisam passar novamente pelo processamento.
+
+A prévia local fica em `http://localhost:8000` após:
+
+```sh
+python -m http.server 8000 --bind 127.0.0.1 --directory site
+```
+
+O painel oferece filtros por curso, tipo de registro e período, com agrupamento anual ou semestral. Inclui contagens, barras feminina/masculina, linha da participação feminina com intervalo probabilístico, pizza, cobertura, tabela e downloads. O Plotly.js é carregado de um CDN; sem conexão, a tabela e os dados continuam disponíveis no servidor local.
+
+Os arquivos `site/data/resumo.json` e `site/data/resumo.csv` contêm os mesmos agregados, incluindo grupos pequenos, sem nomes, identificadores individuais ou referências aos PDFs. Há linhas por curso e para todos os cursos, anuais e semestrais: esses recortes são alternativos e não devem ser somados entre si. Percentuais usam registros resolvidos; `null` no JSON e campo vazio no CSV significam indisponibilidade, não zero.
+
+### GitHub Pages
+
+A pasta `site/` é a única incluída na publicação. Em **Settings → Pages**, a origem é **GitHub Actions**. Após o commit e push do site e dos agregados, a execução manual de **Actions → Publicar painel ELAS-TI → Run workflow**, na `main`, valida os arquivos e publica a página. Atualizações seguem o mesmo fluxo. O workflow não executa a extração nem recebe PDFs ou chave de API.
+
+O site é destinado a acesso público. Pages em repositórios privados depende do plano da conta; a configuração não altera a visibilidade do repositório. [Documentação do GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
+
+## Gráficos e resultados locais
 
 O menu oferece filtros de curso e período, com análises de ingresso e conclusão. Estão disponíveis gráficos de contagem, participação feminina, cobertura da inferência, comparação entre ingresso e conclusão, correspondências por coorte e tempo até conclusão.
 
@@ -86,9 +121,9 @@ As coortes são definidas pelo curso e período de ingresso. Uma correspondênci
 
 As saídas não incluem CSVs individuais nem nomes de estudantes. O snapshot local preserva os dados necessários à reconstrução das análises com identificadores aleatórios, sem nomes ou números de sequência. O cache armazena índices HMAC e respostas sem nomes em texto claro. Esses arquivos são pseudonimizados e continuam sendo dados de acesso restrito.
 
-Por padrão, gráficos e resumos suprimem grupos menores que cinco e estimativas com poucos registros resolvidos. A auditoria local mantém as contagens necessárias à validação. Essas medidas reduzem a exposição, mas não garantem anonimato, sobretudo em grupos pequenos ou no cruzamento de resultados.
+Por padrão, gráficos e resumos **locais** suprimem grupos menores que cinco e estimativas com poucos registros resolvidos. A auditoria local mantém as contagens necessárias à validação. Essas medidas reduzem a exposição, mas não garantem anonimato, sobretudo em grupos pequenos ou no cruzamento de resultados.
 
-PDFs, credenciais, cache, chaves e a pasta `output/` são ignorados pelo Git. O repositório contém o código e testes sintéticos; a divulgação de resultados requer uma avaliação própria dos dados envolvidos.
+PDFs, credenciais, cache, chaves e a pasta `output/` são ignorados pelo Git. A exportação pública é separada: publica números agregados sem supressão por tamanho de grupo, conforme o escopo do projeto. Isso remove a identificação nominal, mas não garante anonimato absoluto. O único CSV permitido no versionamento é `site/data/resumo.csv`, validado junto ao JSON.
 
 ## Desenvolvimento
 
@@ -97,6 +132,7 @@ O código está em `src/elas_ti/` e os testes em `tests/`.
 ```sh
 pytest
 python scripts/check_publication.py --history
+python scripts/validate_public_data.py
 ```
 
 A suíte bloqueia chamadas reais à API. Os testes de integração com documentos institucionais são executados apenas quando os PDFs estão disponíveis localmente. O GitHub Actions executa os testes e a verificação preventiva de arquivos privados e possíveis credenciais no histórico. Essa verificação não substitui a revisão dos materiais antes da publicação.
