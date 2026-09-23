@@ -24,3 +24,9 @@ registros_snapshot.json
 
 # Única exportação CSV pública, com esquema agregado validado.
 !/site/data/resumo.csv
+
+# Documentos de entrada, inclusive arquivos compactados, permanecem locais.
+.DS_Store
+/pdfs/**
+!/pdfs/**/
+!/pdfs/**/.gitkeep

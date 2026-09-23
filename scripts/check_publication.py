@@ -22,6 +22,8 @@ def blocked_path(path):
     p = PurePosixPath(path)
     if path == "site/data/resumo.csv":
         return False
+    if "pdfs" in p.parts and p.name != ".gitkeep":
+        return True
     return (
         p.name.startswith(".env")
         and p.name != ".env.example"
