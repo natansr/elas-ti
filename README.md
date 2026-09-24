@@ -1,6 +1,6 @@
 # ELAS-TI
 
-Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos Cursos de Tecnologia da Informação
+**E**studo **L**ongitudinal da p**A**rticipação feminina no ingre**S**so e na conclusão dos cursos de **T**ecnologia da **I**nformação
 
 Software em Python para análise da participação feminina entre ingressantes e concluintes de cursos de Tecnologia da Informação. Desenvolvido por **Vitória Maria Diniz e Natan de S. Rodrigues**, no grupo de pesquisa **ANDSol/UEG**.
 
