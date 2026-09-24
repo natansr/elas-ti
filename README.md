@@ -4,7 +4,7 @@ Estudo Longitudinal da Participação Feminina no Ingresso e na Conclusão dos C
 
 Software em Python para análise da participação feminina entre ingressantes e concluintes de cursos de Tecnologia da Informação. Desenvolvido por **Vitória Maria Diniz e Natan de S. Rodrigues**, no grupo de pesquisa **ANDSol/UEG**.
 
-O [painel público](https://natansr.github.io/elas-ti/) apresenta os resultados do curso de Sistemas de Informação da **UEG/UnU Goianésia**, com dados fornecidos pela Secretaria Acadêmica da unidade. Há filtros, gráficos interativos, ajuda “?” e downloads em CSV e JSON.
+O [painel público](https://natansr.github.io/elas-ti/) apresenta os resultados do curso de Sistemas de Informação da **UEG/UnU Goianésia**, com dados fornecidos pela Secretaria Acadêmica da unidade. O painel permite filtrar os resultados, consultar gráficos interativos e baixar os dados em CSV e JSON.
 
 ## Instalação
 
