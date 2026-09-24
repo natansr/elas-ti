@@ -8,7 +8,7 @@ O [painel público](https://natansr.github.io/elas-ti/) apresenta os resultados 
 
 ## Instalação
 
-Python 3.11 ou superior, na pasta do projeto:
+Requisito: Python 3.11 ou superior. Na pasta do projeto, crie um ambiente para instalar as dependências:
 
 ```sh
 python -m venv .venv
@@ -28,13 +28,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Cada pessoa utiliza sua própria [chave do Genderize.io](https://genderize.io/register), no arquivo local `.env`:
+Para consultar o [Genderize.io](https://genderize.io/register), copie `.env.example` para `.env` e preencha sua chave pessoal:
 
 ```dotenv
 GENDERIZE_API_KEY=sua_chave
 ```
 
-O `.env` é ignorado pelo Git. A consulta envia os nomes ao Genderize.io; os PDFs permanecem no computador. Nenhuma chave é incluída no painel.
+A chave fica no computador e não é incluída no painel. As consultas enviam nomes ao Genderize.io, mas não os PDFs.
 
 ## Documentos e execução
 
@@ -43,7 +43,7 @@ O `.env` é ignorado pelo Git. A consulta envia os nomes ao Genderize.io; os PDF
 | `pdfs/ingressantes/` | PDFs ou `.7z` de ingressantes. |
 | `pdfs/formandos/` | PDFs ou `.7z` de concluintes. |
 
-Todo o conteúdo dessas pastas fica fora do Git, exceto os marcadores vazios `.gitkeep`. Os `.7z` são descompactados automaticamente em uma pasta temporária privada, removida após a leitura. Os originais são preservados.
+Essas pastas são destinadas aos documentos privados e estão excluídas da publicação. Arquivos `.7z` são extraídos automaticamente para leitura, sem alterar os originais.
 
 A execução completa extrai os registros, consulta o Genderize.io quando necessário, calcula as estatísticas e atualiza os arquivos do painel:
 
@@ -54,7 +54,7 @@ python main.py --update-site
 | Comando | Finalidade |
 |---|---|
 | `python main.py --dry-run` | Validar a extração, sem API. |
-| `python main.py --update-site --no-api` | Processar somente com as inferências existentes no cache. |
+| `python main.py --update-site --no-api` | Processar com as inferências já salvas, sem novas consultas ao serviço. |
 | `python main.py --export-site` | Exportar a última análise salva, sem reler documentos. |
 | `python main.py --graphs` | Abrir o menu local de gráficos Matplotlib. |
 | `python main.py --rebuild-reports` | Reconstruir os relatórios locais da análise salva. |
@@ -79,7 +79,7 @@ Quantidades esperadas podem ser fracionárias. Registros sem inferência entram 
 
 Ingresso e conclusão abrangem grupos e períodos distintos. Diferenças entre seus percentuais são descritivas e não medem evasão, probabilidade de conclusão ou significância estatística. Fórmulas, resultados da execução e limitações estão em [Método e resultados](docs/METODOLOGIA.md).
 
-## Painel e reprodução
+## Painel público
 
 Os arquivos públicos `site/data/resumo.json` e `resumo.csv` contêm os mesmos agregados. Há recortes por curso, ano e semestre: somar recortes sobrepostos duplica os totais. Campos vazios no CSV e `null` no JSON indicam indisponibilidade.
 
@@ -91,16 +91,10 @@ python -m http.server 8000 --bind 127.0.0.1 --directory site
 
 O painel pode ser consultado sem PDFs ou chave de API. Uma nova extração requer documentos próprios; novas inferências requerem uma chave pessoal. O serviço pode retornar probabilidades diferentes em consultas futuras.
 
-O push de alterações em `site/` para a `main` publica o painel via GitHub Actions. Apenas `site/` é enviada ao Pages. PDFs, `.7z`, `.env`, cache e `output/` permanecem locais. O site publica números agregados, inclusive de grupos pequenos, sem nomes ou identificadores individuais; isso não garante anonimato absoluto.
+O painel é publicado no GitHub Pages a partir da pasta `site/`. Apenas os gráficos e os dados agregados são públicos; documentos, chave de API e arquivos de processamento permanecem locais. Não coloque material privado na pasta `site/`.
 
-## Verificação e licença
+Os resultados não contêm nomes ou identificadores individuais. Como incluem grupos pequenos, devem ser interpretados com cuidado ao cruzá-los com outras fontes de informação.
 
-```sh
-pytest
-python scripts/check_publication.py --history
-python scripts/validate_public_data.py
-```
-
-Os testes utilizam dados sintéticos e bloqueiam chamadas reais à API. A verificação do Git busca arquivos privados e possíveis credenciais, sem substituir a revisão do material publicado.
+## Licença
 
 Licença [GNU GPL versão 3 ou posterior](LICENSE) (`GPL-3.0-or-later`). Copyright (C) 2026 Vitória Maria Diniz e Natan de S. Rodrigues.
